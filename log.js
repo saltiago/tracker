@@ -11,13 +11,40 @@ let currentType   = 'weighted';
 let currentMod    = 'bw';
 let pendingReps   = null;
 let stateHistory  = [];
+let advanceTimer  = null;
+const ADVANCE_DELAY = 800; // ms after last keystroke before auto-advancing
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded', () => {
   program      = getProgram();
   exerciseList = program.flatMap(p => p.exercises);
+  setupAutoAdvance();
   show('screen-start');
 });
+
+// ── AUTO-ADVANCE (debounce) ──
+function clearAdvance() {
+  if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+}
+
+function setupAutoAdvance() {
+  const reps    = document.getElementById('input-reps');
+  const weight  = document.getElementById('input-weight');
+  const seconds = document.getElementById('input-seconds');
+
+  reps.addEventListener('input', () => {
+    clearAdvance();
+    if (reps.value.trim()) advanceTimer = setTimeout(confirmReps, ADVANCE_DELAY);
+  });
+  weight.addEventListener('input', () => {
+    clearAdvance();
+    if (weight.value.trim()) advanceTimer = setTimeout(confirmWeight, ADVANCE_DELAY);
+  });
+  seconds.addEventListener('input', () => {
+    clearAdvance();
+    if (seconds.value.trim()) advanceTimer = setTimeout(confirmSeconds, ADVANCE_DELAY);
+  });
+}
 
 // ── SCREEN MANAGEMENT ──
 function show(id) {
@@ -31,6 +58,7 @@ function pushState(state) {
 }
 
 function goBack() {
+  clearAdvance();
   if (!stateHistory.length) return;
   const prev = stateHistory.pop();
   if (!stateHistory.length) document.getElementById('back-btn').classList.add('hidden');
@@ -72,6 +100,7 @@ function goToExercise(idx, field) {
 
 // ── RENDER EXERCISE ──
 function renderExercise(ex, field) {
+  clearAdvance();
   currentType = ex.type;
 
   document.getElementById('ex-name').textContent = ex.name;
@@ -152,6 +181,7 @@ function onModifierChange() {
 
 // ── CONFIRM REPS ──
 function confirmReps() {
+  clearAdvance();
   var val = document.getElementById('input-reps').value.trim();
   if (!val) return;
   pendingReps = val;
@@ -186,6 +216,7 @@ function confirmReps() {
 
 // ── CONFIRM WEIGHT ──
 function confirmWeight() {
+  clearAdvance();
   var val = document.getElementById('input-weight').value.trim();
   if (!val) return;
   var ex = exerciseList[currentExIdx];
@@ -202,6 +233,7 @@ function confirmWeight() {
 
 // ── CONFIRM SECONDS ──
 function confirmSeconds() {
+  clearAdvance();
   var val = document.getElementById('input-seconds').value.trim();
   if (!val) return;
   var ex = exerciseList[currentExIdx];
@@ -216,6 +248,7 @@ function confirmSeconds() {
 
 // ── MANUAL ARROW ──
 function manualAdvance() {
+  clearAdvance();
   var ex = exerciseList[currentExIdx];
   if (!ex || ex.type === 'check') { skipExercise(); return; }
 
@@ -269,6 +302,7 @@ function fillSame() {
 
 // ── SKIP ──
 function skipExercise() {
+  clearAdvance();
   var ex = exerciseList[currentExIdx];
   sessionSets.push({ exerciseId: ex.id, round: currentRound, skipped: true });
   advance();

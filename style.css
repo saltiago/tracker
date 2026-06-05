@@ -33,10 +33,14 @@ body.log-page {
 }
 
 #app {
+  position: relative;
+}
+
+/* Log page only: full-height flex column locked to viewport */
+.log-page #app {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  position: relative;
   overflow: hidden;
 }
 
