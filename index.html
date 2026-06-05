@@ -51,12 +51,16 @@
 
     <div id="field-reps" class="field-block">
       <label>reps</label>
-      <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="—">
+      <form onsubmit="confirmReps(); return false;" action="#">
+        <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="—" enterkeyhint="next">
+      </form>
     </div>
 
     <div id="field-weight" class="field-block hidden">
       <label>lbs</label>
-      <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*" autocomplete="off" placeholder="—">
+      <form onsubmit="confirmWeight(); return false;" action="#">
+        <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*" autocomplete="off" placeholder="—" enterkeyhint="done">
+      </form>
     </div>
 
     <div class="ex-actions">

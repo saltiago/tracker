@@ -127,12 +127,7 @@ function renderExercise(ex, field) {
     else weightInput.focus();
   }, 80);
 
-  // wire up enter/done on reps
-  repsInput.onkeydown = null;
-  repsInput.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Go') confirmReps(); };
 
-  weightInput.onkeydown = null;
-  weightInput.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Go') confirmWeight(); };
 }
 
 function confirmReps() {
