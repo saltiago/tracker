@@ -46,8 +46,10 @@
 <script>
 let editProgram = [];
 
+const TYPE_LABELS = { weighted: 'wt', bodyweight: 'bw', timed: 'time', check: 'check' };
+
 window.addEventListener('DOMContentLoaded', () => {
-  editProgram = JSON.parse(JSON.stringify(getProgram())); // deep copy
+  editProgram = JSON.parse(JSON.stringify(getProgram()));
   renderPairs();
 });
 
@@ -73,13 +75,18 @@ function renderPairs() {
       nameInput.placeholder = 'exercise name';
       nameInput.oninput = e => { editProgram[pi].exercises[ei].name = e.target.value; };
 
-      const typeBtn = document.createElement('button');
-      typeBtn.className = `type-toggle${ex.type === 'check' ? ' check' : ''}`;
-      typeBtn.textContent = ex.type === 'check' ? 'check' : 'wt';
-      typeBtn.onclick = () => {
-        const cur = editProgram[pi].exercises[ei].type;
-        editProgram[pi].exercises[ei].type = cur === 'weighted' ? 'check' : 'weighted';
-        renderPairs();
+      // type dropdown
+      const typeSelect = document.createElement('select');
+      typeSelect.className = 'type-select';
+      ['weighted','bodyweight','timed','check'].forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = TYPE_LABELS[t];
+        opt.selected = ex.type === t;
+        typeSelect.appendChild(opt);
+      });
+      typeSelect.onchange = e => {
+        editProgram[pi].exercises[ei].type = e.target.value;
       };
 
       const delBtn = document.createElement('button');
@@ -92,7 +99,7 @@ function renderPairs() {
       };
 
       row.appendChild(nameInput);
-      row.appendChild(typeBtn);
+      row.appendChild(typeSelect);
       row.appendChild(delBtn);
       card.appendChild(row);
     });
@@ -116,7 +123,7 @@ function addPair() {
   editProgram.push({
     pair: editProgram.length + 1,
     exercises: [
-      { id: `ex_${Date.now()}`, name: '', type: 'weighted' },
+      { id: `ex_${Date.now()}`,   name: '', type: 'weighted' },
       { id: `ex_${Date.now()+1}`, name: '', type: 'weighted' },
     ]
   });
@@ -124,7 +131,6 @@ function addPair() {
 }
 
 function saveEdits() {
-  // assign stable ids from name if missing
   editProgram.forEach(pair => {
     pair.exercises.forEach(ex => {
       if (!ex.id || ex.id.startsWith('ex_')) {
@@ -141,8 +147,8 @@ function saveEdits() {
 function exportData() {
   const data = { program: getProgram(), sessions: getSessions() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
   a.href = url;
   a.download = `lifter_${new Date().toISOString().slice(0,10)}.json`;
   a.click();

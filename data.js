@@ -11,7 +11,7 @@ const DEFAULT_PROGRAM = [
     pair: 2,
     exercises: [
       { id: 'sldl',       name: 'SLDL',       type: 'weighted' },
-      { id: 'copenhagen', name: 'Copenhagen', type: 'check'    },
+      { id: 'copenhagen', name: 'Copenhagen', type: 'timed'    },
     ]
   },
   {
@@ -25,7 +25,7 @@ const DEFAULT_PROGRAM = [
     pair: 4,
     exercises: [
       { id: 'latraise',   name: 'Lat Raise',  type: 'weighted' },
-      { id: 'deadbug',    name: 'Deadbug',    type: 'check'    },
+      { id: 'deadbug',    name: 'Deadbug',    type: 'timed'    },
     ]
   },
   {

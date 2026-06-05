@@ -41,7 +41,7 @@
     </div>
   </div>
 
-  <!-- EXERCISE INPUT SCREEN -->
+  <!-- EXERCISE INPUT SCREEN (weighted / bodyweight / timed) -->
   <div id="screen-exercise" class="screen hidden">
     <div class="ex-meta">
       <span id="ex-name"></span>
@@ -49,23 +49,47 @@
     </div>
     <div id="ex-last" class="ex-last"></div>
 
-    <div id="field-reps" class="field-block">
-      <label>reps</label>
+    <!-- BW modifier — only shown for bodyweight type -->
+    <div id="field-modifier" class="field-block hidden">
+      <label>mode</label>
+      <select id="input-modifier" onchange="onModifierChange()">
+        <option value="bw">BW</option>
+        <option value="assisted">assisted</option>
+        <option value="weighted">weighted</option>
+      </select>
+    </div>
+
+    <!-- Reps field (weighted / bodyweight) -->
+    <div id="field-reps" class="field-block hidden">
+      <label id="label-reps">reps</label>
       <form onsubmit="confirmReps(); return false;" action="#">
-        <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="—" enterkeyhint="next">
+        <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*"
+               autocomplete="off" placeholder="—" enterkeyhint="next">
       </form>
     </div>
 
+    <!-- Seconds field (timed) -->
+    <div id="field-seconds" class="field-block hidden">
+      <label>seconds</label>
+      <form onsubmit="confirmSeconds(); return false;" action="#">
+        <input id="input-seconds" type="number" inputmode="numeric" pattern="[0-9]*"
+               autocomplete="off" placeholder="—" enterkeyhint="done">
+      </form>
+    </div>
+
+    <!-- Weight field (weighted, and bodyweight+weighted modifier) -->
     <div id="field-weight" class="field-block hidden">
       <label>lbs</label>
       <form onsubmit="confirmWeight(); return false;" action="#">
-        <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*" autocomplete="off" placeholder="—" enterkeyhint="done">
+        <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*"
+               autocomplete="off" placeholder="—" enterkeyhint="done">
       </form>
     </div>
 
     <div class="ex-actions">
       <button id="btn-same" onclick="fillSame()">same</button>
       <button id="btn-skip" onclick="skipExercise()">skip</button>
+      <button id="btn-next" onclick="manualAdvance()">→</button>
     </div>
   </div>
 
@@ -80,6 +104,7 @@
     </div>
     <div class="ex-actions">
       <button onclick="skipExercise()">skip</button>
+      <button onclick="manualAdvance()">→</button>
     </div>
   </div>
 

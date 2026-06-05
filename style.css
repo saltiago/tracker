@@ -312,7 +312,52 @@ html, body {
   margin-bottom: 8px;
 }
 
-/* ── HIDDEN ── */
+/* ── TYPE SELECT (editor) ── */
+.type-select {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  padding: 5px 6px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 52px;
+  text-align: center;
+}
+.type-select:focus { border-color: var(--accent2); color: var(--accent); }
+
+/* ── MODIFIER SELECT (log) ── */
+#input-modifier {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 300;
+  padding: 8px 0;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+#input-modifier:focus { border-bottom-color: var(--accent); }
+
+/* ── ARROW BUTTON ── */
+#btn-next {
+  color: var(--accent2) !important;
+  font-size: 1rem !important;
+  padding: 10px 8px !important;
+}
+#btn-next:hover { color: var(--accent) !important; }
+
+
 .hidden { display: none !important; }
 
 /* ── PAGE HEADER (stats/editor/stretches) ── */
