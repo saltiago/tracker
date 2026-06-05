@@ -67,23 +67,6 @@ body.log-page {
 }
 #hamburger:hover span { background: var(--accent); }
 
-/* ── BACK BUTTON ── */
-#back-btn {
-  position: fixed;
-  top: 14px;
-  left: 18px;
-  z-index: 100;
-  background: none;
-  border: none;
-  color: var(--mid);
-  font-family: var(--mono);
-  font-size: 1.4rem;
-  cursor: pointer;
-  padding: 6px;
-  transition: color 0.2s;
-}
-#back-btn:hover { color: var(--accent); }
-
 /* ── MENU OVERLAY ── */
 #menu-overlay {
   position: fixed;
@@ -247,8 +230,11 @@ body.log-page {
 
 .ex-actions {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   margin-top: 8px;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
 .ex-actions button {
   background: none;
@@ -366,6 +352,27 @@ body.log-page {
   padding: 10px 8px !important;
 }
 #btn-next:hover { color: var(--accent) !important; }
+
+/* ── INLINE BACK ARROW (mirrors next) ── */
+#btn-back {
+  font-size: 1rem;
+  color: var(--accent2);
+}
+#btn-back:hover { color: var(--accent); }
+
+/* ── ROUND-END BACK LINK ── */
+.back-link {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  padding: 8px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--mid); }
 
 
 .hidden { display: none !important; }

@@ -38,10 +38,7 @@
     <span></span><span></span><span></span>
   </button>
 
-  <!-- BACK BUTTON -->
-  <button id="back-btn" class="hidden" onclick="goBack()">←</button>
-
-  <!-- END WORKOUT BUTTON (visible during active session) -->
+  <!-- END WORKOUT BUTTON -->
   <button id="end-btn" class="hidden" onclick="endWorkout()">end</button>
 
   <!-- SCREENS -->
@@ -75,31 +72,26 @@
     <!-- Reps -->
     <div id="field-reps" class="field-block hidden">
       <label>reps</label>
-      <form onsubmit="confirmReps(); return false;" action="#">
-        <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*"
-               autocomplete="off" placeholder="—" enterkeyhint="next">
-      </form>
-    </div>
-
-    <!-- Seconds -->
-    <div id="field-seconds" class="field-block hidden">
-      <label>seconds</label>
-      <form onsubmit="confirmSeconds(); return false;" action="#">
-        <input id="input-seconds" type="number" inputmode="numeric" pattern="[0-9]*"
-               autocomplete="off" placeholder="—" enterkeyhint="done">
-      </form>
+      <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*"
+             autocomplete="off" placeholder="—">
     </div>
 
     <!-- Weight -->
     <div id="field-weight" class="field-block hidden">
       <label>lbs</label>
-      <form onsubmit="confirmWeight(); return false;" action="#">
-        <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*"
-               autocomplete="off" placeholder="—" enterkeyhint="done">
-      </form>
+      <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*"
+             autocomplete="off" placeholder="—">
+    </div>
+
+    <!-- Seconds -->
+    <div id="field-seconds" class="field-block hidden">
+      <label>seconds</label>
+      <input id="input-seconds" type="number" inputmode="numeric" pattern="[0-9]*"
+             autocomplete="off" placeholder="—">
     </div>
 
     <div class="ex-actions">
+      <button id="btn-back" onclick="goBack()">←</button>
       <button id="btn-same" onclick="fillSame()">same</button>
       <button id="btn-skip" onclick="skipExercise()">skip</button>
       <button id="btn-next" onclick="manualAdvance()">→</button>
@@ -116,6 +108,7 @@
       <div class="check-tap">tap</div>
     </div>
     <div class="ex-actions">
+      <button onclick="goBack()">←</button>
       <button onclick="skipExercise()">skip</button>
       <button onclick="manualAdvance()">→</button>
     </div>
@@ -127,6 +120,7 @@
       <div id="round-end-label" class="round-label"></div>
       <button class="big-btn" onclick="nextRound()">+ another round</button>
       <button class="done-btn" onclick="endWorkout()">done</button>
+      <button class="back-link" onclick="goBack()">← back</button>
     </div>
   </div>
 
@@ -142,16 +136,5 @@
 
 <script src="data.js"></script>
 <script src="log.js"></script>
-<script>
-// Show/hide end button based on active session screens
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  const activeScreens = ['screen-exercise','screen-check','screen-round-end'];
-  const endBtn = document.getElementById('end-btn');
-  if (activeScreens.includes(id)) endBtn.classList.remove('hidden');
-  else endBtn.classList.add('hidden');
-}
-</script>
 </body>
 </html>
