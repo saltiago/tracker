@@ -6,7 +6,7 @@
 <title>lifter</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="log-page">
 
 <div id="app">
 
@@ -23,6 +23,16 @@
     </div>
   </div>
 
+  <!-- END WORKOUT POPUP -->
+  <div id="end-popup" class="popup-overlay hidden">
+    <div class="popup">
+      <div class="popup-label">end workout</div>
+      <button class="popup-btn-primary" onclick="endSave()">save session</button>
+      <button class="popup-btn-danger" onclick="endDiscard()">discard</button>
+      <button class="popup-btn-cancel" onclick="endCancel()">cancel</button>
+    </div>
+  </div>
+
   <!-- HAMBURGER -->
   <button id="hamburger" onclick="openMenu()">
     <span></span><span></span><span></span>
@@ -30,6 +40,9 @@
 
   <!-- BACK BUTTON -->
   <button id="back-btn" class="hidden" onclick="goBack()">←</button>
+
+  <!-- END WORKOUT BUTTON (visible during active session) -->
+  <button id="end-btn" class="hidden" onclick="endWorkout()">end</button>
 
   <!-- SCREENS -->
 
@@ -41,7 +54,7 @@
     </div>
   </div>
 
-  <!-- EXERCISE INPUT SCREEN (weighted / bodyweight / timed) -->
+  <!-- EXERCISE INPUT SCREEN -->
   <div id="screen-exercise" class="screen hidden">
     <div class="ex-meta">
       <span id="ex-name"></span>
@@ -49,7 +62,7 @@
     </div>
     <div id="ex-last" class="ex-last"></div>
 
-    <!-- BW modifier — only shown for bodyweight type -->
+    <!-- BW modifier -->
     <div id="field-modifier" class="field-block hidden">
       <label>mode</label>
       <select id="input-modifier" onchange="onModifierChange()">
@@ -59,16 +72,16 @@
       </select>
     </div>
 
-    <!-- Reps field (weighted / bodyweight) -->
+    <!-- Reps -->
     <div id="field-reps" class="field-block hidden">
-      <label id="label-reps">reps</label>
+      <label>reps</label>
       <form onsubmit="confirmReps(); return false;" action="#">
         <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*"
                autocomplete="off" placeholder="—" enterkeyhint="next">
       </form>
     </div>
 
-    <!-- Seconds field (timed) -->
+    <!-- Seconds -->
     <div id="field-seconds" class="field-block hidden">
       <label>seconds</label>
       <form onsubmit="confirmSeconds(); return false;" action="#">
@@ -77,7 +90,7 @@
       </form>
     </div>
 
-    <!-- Weight field (weighted, and bodyweight+weighted modifier) -->
+    <!-- Weight -->
     <div id="field-weight" class="field-block hidden">
       <label>lbs</label>
       <form onsubmit="confirmWeight(); return false;" action="#">
@@ -113,7 +126,7 @@
     <div class="round-end-inner">
       <div id="round-end-label" class="round-label"></div>
       <button class="big-btn" onclick="nextRound()">+ another round</button>
-      <button class="done-btn" onclick="finishSession()">done</button>
+      <button class="done-btn" onclick="endWorkout()">done</button>
     </div>
   </div>
 
@@ -129,5 +142,16 @@
 
 <script src="data.js"></script>
 <script src="log.js"></script>
+<script>
+// Show/hide end button based on active session screens
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  const activeScreens = ['screen-exercise','screen-check','screen-round-end'];
+  const endBtn = document.getElementById('end-btn');
+  if (activeScreens.includes(id)) endBtn.classList.remove('hidden');
+  else endBtn.classList.add('hidden');
+}
+</script>
 </body>
 </html>

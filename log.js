@@ -7,8 +7,8 @@ let history      = {};
 let currentExIdx  = 0;
 let currentRound  = 1;
 let currentField  = 'reps'; // 'reps' | 'weight' | 'seconds'
-let currentType   = 'weighted'; // exercise type at render time
-let currentMod    = 'bw';       // bodyweight modifier
+let currentType   = 'weighted';
+let currentMod    = 'bw';
 let pendingReps   = null;
 let stateHistory  = [];
 
@@ -70,113 +70,96 @@ function goToExercise(idx, field) {
   else renderExercise(ex, field);
 }
 
-// ── RENDER EXERCISE (weighted / bodyweight / timed) ──
+// ── RENDER EXERCISE ──
 function renderExercise(ex, field) {
   currentType = ex.type;
 
-  // meta
   document.getElementById('ex-name').textContent = ex.name;
   const setsThisRound = sessionSets.filter(
     s => s.exerciseId === ex.id && s.round === currentRound && !s.skipped
   ).length;
   document.getElementById('ex-set-label').textContent =
-    `round ${currentRound}  ·  set ${setsThisRound + 1}`;
+    'round ' + currentRound + '  \u00b7  set ' + (setsThisRound + 1);
 
   // ghost
   const last = history[ex.id];
   if (last && last.length) {
     const ls = last[Math.min(setsThisRound, last.length - 1)];
     let ghost = 'last: ';
-    if (ls.seconds !== undefined) ghost += `${ls.seconds}s`;
-    else if (ls.weight)           ghost += `${ls.weight} × ${ls.reps}`;
-    else                          ghost += `${ls.reps} reps`;
-    if (ls.modifier && ls.modifier !== 'weighted') ghost += ` (${ls.modifier})`;
+    if (ls.seconds !== undefined)             ghost += ls.seconds + 's';
+    else if (ls.weight)                       ghost += ls.weight + ' x ' + ls.reps;
+    else                                      ghost += ls.reps + ' reps';
+    if (ls.modifier && ls.modifier !== 'weighted') ghost += ' (' + ls.modifier + ')';
     document.getElementById('ex-last').textContent = ghost;
   } else {
     document.getElementById('ex-last').textContent = '';
   }
 
-  // reset all fields
   hideAll();
   document.getElementById('input-reps').value    = '';
   document.getElementById('input-weight').value  = '';
   document.getElementById('input-seconds').value = '';
 
   if (ex.type === 'timed') {
-    // ── TIMED ──
     document.getElementById('field-seconds').classList.remove('hidden');
     show('screen-exercise');
-    setTimeout(() => document.getElementById('input-seconds').focus(), 80);
+    setTimeout(function() { document.getElementById('input-seconds').focus(); }, 80);
 
   } else if (ex.type === 'bodyweight') {
-    // ── BODYWEIGHT ──
     document.getElementById('field-modifier').classList.remove('hidden');
-    // restore modifier if re-rendering same exercise
     document.getElementById('input-modifier').value = currentMod;
-    applyModifierVisibility(field);
+    if (field === 'weight') {
+      document.getElementById('field-weight').classList.remove('hidden');
+    } else {
+      document.getElementById('field-reps').classList.remove('hidden');
+    }
     show('screen-exercise');
-    // focus appropriate field
-    setTimeout(() => {
+    setTimeout(function() {
       if (field === 'reps') document.getElementById('input-reps').focus();
-      else if (field === 'weight') document.getElementById('input-weight').focus();
+      else document.getElementById('input-weight').focus();
     }, 80);
 
   } else {
-    // ── WEIGHTED ──
-    if (field === 'reps') {
-      document.getElementById('field-reps').classList.remove('hidden');
-      show('screen-exercise');
-      setTimeout(() => document.getElementById('input-reps').focus(), 80);
-    } else {
+    // weighted
+    if (field === 'weight') {
       document.getElementById('field-weight').classList.remove('hidden');
-      show('screen-exercise');
-      setTimeout(() => document.getElementById('input-weight').focus(), 80);
+    } else {
+      document.getElementById('field-reps').classList.remove('hidden');
     }
+    show('screen-exercise');
+    setTimeout(function() {
+      if (field === 'reps') document.getElementById('input-reps').focus();
+      else document.getElementById('input-weight').focus();
+    }, 80);
   }
 }
 
 function hideAll() {
-  ['field-modifier','field-reps','field-weight','field-seconds'].forEach(id => {
+  ['field-modifier','field-reps','field-weight','field-seconds'].forEach(function(id) {
     document.getElementById(id).classList.add('hidden');
   });
 }
 
-// ── MODIFIER LOGIC ──
+// ── MODIFIER CHANGE ──
 function onModifierChange() {
   currentMod = document.getElementById('input-modifier').value;
-  applyModifierVisibility('reps');
-  document.getElementById('input-reps').value = '';
+  document.getElementById('input-reps').value   = '';
   document.getElementById('input-weight').value = '';
-  setTimeout(() => document.getElementById('input-reps').focus(), 80);
+  document.getElementById('field-reps').classList.remove('hidden');
+  document.getElementById('field-weight').classList.add('hidden');
+  setTimeout(function() { document.getElementById('input-reps').focus(); }, 80);
 }
 
-function applyModifierVisibility(field) {
-  const mod = document.getElementById('input-modifier').value;
-  currentMod = mod;
-  if (field === 'reps' || field === 'seconds') {
-    document.getElementById('field-reps').classList.remove('hidden');
-    document.getElementById('field-weight').classList.add('hidden');
-  } else if (field === 'weight') {
-    if (mod === 'weighted') {
-      document.getElementById('field-reps').classList.add('hidden');
-      document.getElementById('field-weight').classList.remove('hidden');
-    } else {
-      // BW / assisted: no weight field — shouldn't reach here, but safe fallback
-      document.getElementById('field-reps').classList.remove('hidden');
-    }
-  }
-}
-
-// ── CONFIRM HANDLERS ──
+// ── CONFIRM REPS ──
 function confirmReps() {
-  const val = document.getElementById('input-reps').value.trim();
+  var val = document.getElementById('input-reps').value.trim();
   if (!val) return;
   pendingReps = val;
 
-  const ex = exerciseList[currentExIdx];
+  var ex = exerciseList[currentExIdx];
+  var needsWeight = (ex.type === 'weighted') || (ex.type === 'bodyweight' && currentMod === 'weighted');
 
-  if (ex.type === 'bodyweight' && currentMod === 'weighted') {
-    // need weight next
+  if (needsWeight) {
     pushState({
       exIdx: currentExIdx, round: currentRound,
       field: 'reps', mod: currentMod, pendingReps: null,
@@ -184,12 +167,12 @@ function confirmReps() {
     });
     currentField = 'weight';
     hideAll();
-    document.getElementById('field-modifier').classList.remove('hidden');
+    if (ex.type === 'bodyweight') document.getElementById('field-modifier').classList.remove('hidden');
     document.getElementById('field-weight').classList.remove('hidden');
     document.getElementById('input-weight').value = '';
-    setTimeout(() => document.getElementById('input-weight').focus(), 80);
+    setTimeout(function() { document.getElementById('input-weight').focus(); }, 80);
   } else {
-    // BW / assisted / plain bodyweight with no weight — log directly
+    // BW / assisted — reps only
     sessionSets.push({
       exerciseId: ex.id,
       round: currentRound,
@@ -201,10 +184,11 @@ function confirmReps() {
   }
 }
 
+// ── CONFIRM WEIGHT ──
 function confirmWeight() {
-  const val = document.getElementById('input-weight').value.trim();
+  var val = document.getElementById('input-weight').value.trim();
   if (!val) return;
-  const ex = exerciseList[currentExIdx];
+  var ex = exerciseList[currentExIdx];
   sessionSets.push({
     exerciseId: ex.id,
     round: currentRound,
@@ -216,10 +200,11 @@ function confirmWeight() {
   advance();
 }
 
+// ── CONFIRM SECONDS ──
 function confirmSeconds() {
-  const val = document.getElementById('input-seconds').value.trim();
+  var val = document.getElementById('input-seconds').value.trim();
   if (!val) return;
-  const ex = exerciseList[currentExIdx];
+  var ex = exerciseList[currentExIdx];
   sessionSets.push({
     exerciseId: ex.id,
     round: currentRound,
@@ -229,27 +214,27 @@ function confirmSeconds() {
   advance();
 }
 
-// manual → button: commit whatever is currently filled, or just advance if nothing
+// ── MANUAL ARROW ──
 function manualAdvance() {
-  const ex = exerciseList[currentExIdx];
-  if (ex && ex.type === 'check') { skipExercise(); return; }
+  var ex = exerciseList[currentExIdx];
+  if (!ex || ex.type === 'check') { skipExercise(); return; }
 
   if (currentType === 'timed') {
-    const v = document.getElementById('input-seconds').value.trim();
-    if (v) confirmSeconds(); else skipExercise();
-  } else if (currentField === 'reps') {
-    const v = document.getElementById('input-reps').value.trim();
-    if (v) confirmReps(); else skipExercise();
+    var sv = document.getElementById('input-seconds').value.trim();
+    if (sv) confirmSeconds(); else skipExercise();
+  } else if (currentField === 'weight') {
+    var wv = document.getElementById('input-weight').value.trim();
+    if (wv) confirmWeight(); else skipExercise();
   } else {
-    const v = document.getElementById('input-weight').value.trim();
-    if (v) confirmWeight(); else skipExercise();
+    var rv = document.getElementById('input-reps').value.trim();
+    if (rv) confirmReps(); else skipExercise();
   }
 }
 
 // ── RENDER CHECK ──
 function renderCheck(ex) {
   document.getElementById('check-name').textContent = ex.name;
-  document.getElementById('check-set-label').textContent = `round ${currentRound}`;
+  document.getElementById('check-set-label').textContent = 'round ' + currentRound;
   document.querySelector('.check-area').classList.remove('done');
   document.querySelector('.check-tap').textContent = 'tap';
   show('screen-check');
@@ -257,57 +242,73 @@ function renderCheck(ex) {
 
 function completeCheck() {
   document.querySelector('.check-area').classList.add('done');
-  document.querySelector('.check-tap').textContent = '✓';
-  const ex = exerciseList[currentExIdx];
+  document.querySelector('.check-tap').textContent = '\u2713';
+  var ex = exerciseList[currentExIdx];
   sessionSets.push({ exerciseId: ex.id, round: currentRound, check: true, skipped: false });
-  setTimeout(() => advance(), 320);
+  setTimeout(function() { advance(); }, 320);
 }
 
 // ── SAME ──
 function fillSame() {
-  const ex  = exerciseList[currentExIdx];
-  const last = history[ex.id];
+  var ex  = exerciseList[currentExIdx];
+  var last = history[ex.id];
   if (!last || !last.length) return;
-  const setsLogged = sessionSets.filter(
-    s => s.exerciseId === ex.id && s.round === currentRound && !s.skipped
-  ).length;
-  const ls = last[Math.min(setsLogged, last.length - 1)];
+  var setsLogged = sessionSets.filter(function(s) {
+    return s.exerciseId === ex.id && s.round === currentRound && !s.skipped;
+  }).length;
+  var ls = last[Math.min(setsLogged, last.length - 1)];
 
   if (currentType === 'timed') {
     document.getElementById('input-seconds').value = ls.seconds || '';
-  } else if (currentField === 'reps') {
-    document.getElementById('input-reps').value = ls.reps || '';
-  } else {
+  } else if (currentField === 'weight') {
     document.getElementById('input-weight').value = ls.weight || '';
+  } else {
+    document.getElementById('input-reps').value = ls.reps || '';
   }
 }
 
 // ── SKIP ──
 function skipExercise() {
-  const ex = exerciseList[currentExIdx];
+  var ex = exerciseList[currentExIdx];
   sessionSets.push({ exerciseId: ex.id, round: currentRound, skipped: true });
   advance();
 }
 
+// ── END WORKOUT (save or discard) ──
+function endWorkout() {
+  document.getElementById('end-popup').classList.remove('hidden');
+}
+function endSave() {
+  document.getElementById('end-popup').classList.add('hidden');
+  finishSession(true);
+}
+function endDiscard() {
+  document.getElementById('end-popup').classList.add('hidden');
+  resetToStart();
+}
+function endCancel() {
+  document.getElementById('end-popup').classList.add('hidden');
+}
+
 // ── ADVANCE ──
 function advance() {
-  const nextIdx = currentExIdx + 1;
+  var nextIdx = currentExIdx + 1;
   if (nextIdx >= exerciseList.length) {
     showRoundEnd();
   } else {
     pushState({
       exIdx: currentExIdx, round: currentRound,
-      field: currentField, mod: currentMod, pendingReps,
+      field: currentField, mod: currentMod, pendingReps: pendingReps,
       sessionSets: sessionSets.slice()
     });
-    currentMod = 'bw'; // reset modifier for next exercise
+    currentMod = 'bw';
     goToExercise(nextIdx, 'reps');
   }
 }
 
 // ── ROUND END ──
 function showRoundEnd() {
-  document.getElementById('round-end-label').textContent = `round ${currentRound} complete`;
+  document.getElementById('round-end-label').textContent = 'round ' + currentRound + ' complete';
   show('screen-round-end');
   document.getElementById('back-btn').classList.remove('hidden');
 }
@@ -321,19 +322,20 @@ function nextRound() {
 }
 
 // ── FINISH ──
-function finishSession() {
-  if (sessionSets.length) saveSession(sessionSets);
-  const weighted = sessionSets.filter(s => !s.skipped && s.weight);
-  const bwSets   = sessionSets.filter(s => !s.skipped && s.reps && !s.weight);
-  const timed    = sessionSets.filter(s => !s.skipped && s.seconds);
-  const checks   = sessionSets.filter(s => !s.skipped && s.check);
-  const skips    = sessionSets.filter(s => s.skipped);
+function finishSession(save) {
+  if (save && sessionSets.length) saveSession(sessionSets);
+  var weighted = sessionSets.filter(function(s) { return !s.skipped && s.weight; });
+  var bwSets   = sessionSets.filter(function(s) { return !s.skipped && s.reps && !s.weight; });
+  var timed    = sessionSets.filter(function(s) { return !s.skipped && s.seconds; });
+  var checks   = sessionSets.filter(function(s) { return !s.skipped && s.check; });
+  var skips    = sessionSets.filter(function(s) { return s.skipped; });
 
-  let summary = `${currentRound} round${currentRound > 1 ? 's' : ''}`;
-  const total = weighted.length + bwSets.length + timed.length;
-  summary += `  ·  ${total} sets logged`;
-  if (checks.length) summary += `  ·  ${checks.length} checks`;
-  if (skips.length)  summary += `  ·  ${skips.length} skipped`;
+  var total   = weighted.length + bwSets.length + timed.length;
+  var summary = currentRound + ' round' + (currentRound > 1 ? 's' : '');
+  summary += '  \u00b7  ' + total + ' sets logged';
+  if (checks.length) summary += '  \u00b7  ' + checks.length + ' checks';
+  if (skips.length)  summary += '  \u00b7  ' + skips.length + ' skipped';
+  if (!save)         summary  = 'session discarded';
 
   document.getElementById('done-summary').textContent = summary;
   document.getElementById('back-btn').classList.add('hidden');

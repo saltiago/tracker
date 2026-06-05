@@ -19,10 +19,16 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 html, body {
-  height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--mono);
+  min-height: 100%;
+}
+
+/* Log page: lock scroll to prevent bounce during entry */
+body.log-page {
+  height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
 }
 
@@ -529,3 +535,89 @@ canvas#chart {
   letter-spacing: 0.06em;
   line-height: 1.6;
 }
+
+/* ── END BUTTON ── */
+#end-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  padding: 10px 24px;
+  cursor: pointer;
+  z-index: 90;
+  transition: all 0.2s;
+}
+#end-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── END POPUP ── */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.popup {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  padding: 32px 28px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.popup-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--mid);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.popup-btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 1px solid var(--accent2);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.popup-btn-primary:hover { background: var(--ghost); }
+.popup-btn-danger {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.popup-btn-danger:hover { border-color: var(--danger); }
+.popup-btn-cancel {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  padding: 8px;
+  transition: color 0.2s;
+  text-align: center;
+}
+.popup-btn-cancel:hover { color: var(--mid); }

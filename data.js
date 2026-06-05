@@ -3,36 +3,36 @@ const DEFAULT_PROGRAM = [
   {
     pair: 1,
     exercises: [
-      { id: 'pull',       name: 'Pull',       type: 'weighted' },
-      { id: 'ohp',        name: 'OHP',        type: 'weighted' },
+      { id: 'pullup',     name: 'Pull-up',    type: 'bodyweight' },
+      { id: 'ohp',        name: 'OHP',        type: 'weighted'   },
     ]
   },
   {
     pair: 2,
     exercises: [
-      { id: 'sldl',       name: 'SLDL',       type: 'weighted' },
-      { id: 'copenhagen', name: 'Copenhagen', type: 'timed'    },
+      { id: 'sldl',       name: 'SLDL',       type: 'weighted'   },
+      { id: 'copenhagen', name: 'Copenhagen', type: 'timed'      },
     ]
   },
   {
     pair: 3,
     exercises: [
-      { id: 'push',       name: 'Push',       type: 'weighted' },
-      { id: 'row',        name: 'Row',        type: 'weighted' },
+      { id: 'pushup',     name: 'Push-up',    type: 'bodyweight' },
+      { id: 'row',        name: 'Row',        type: 'weighted'   },
     ]
   },
   {
     pair: 4,
     exercises: [
-      { id: 'latraise',   name: 'Lat Raise',  type: 'weighted' },
-      { id: 'deadbug',    name: 'Deadbug',    type: 'timed'    },
+      { id: 'latraise',   name: 'Lat Raise',  type: 'weighted'   },
+      { id: 'deadbug',    name: 'Deadbug',    type: 'timed'      },
     ]
   },
   {
     pair: 5,
     exercises: [
-      { id: 'bicep',      name: 'Bicep',      type: 'weighted' },
-      { id: 'tricep',     name: 'Tricep',     type: 'weighted' },
+      { id: 'bicep',      name: 'Bicep',      type: 'weighted'   },
+      { id: 'tricep',     name: 'Tricep',     type: 'weighted'   },
     ]
   },
 ];
