@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>lifter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- MENU OVERLAY -->
+  <div id="menu-overlay" class="hidden">
+    <div id="menu-panel">
+      <button class="menu-close" onclick="closeMenu()">✕</button>
+      <nav>
+        <a href="index.html" class="menu-item active">log</a>
+        <a href="stats.html" class="menu-item">stats</a>
+        <a href="editor.html" class="menu-item">program</a>
+        <a href="stretches.html" class="menu-item">stretches</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- HAMBURGER -->
+  <button id="hamburger" onclick="openMenu()">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- BACK BUTTON -->
+  <button id="back-btn" class="hidden" onclick="goBack()">←</button>
+
+  <!-- SCREENS -->
+
+  <!-- START SCREEN -->
+  <div id="screen-start" class="screen">
+    <div class="start-inner">
+      <div class="start-label">ready</div>
+      <button class="big-btn" onclick="startSession()">start</button>
+    </div>
+  </div>
+
+  <!-- EXERCISE INPUT SCREEN -->
+  <div id="screen-exercise" class="screen hidden">
+    <div class="ex-meta">
+      <span id="ex-name"></span>
+      <span id="ex-set-label"></span>
+    </div>
+    <div id="ex-last" class="ex-last"></div>
+
+    <div id="field-reps" class="field-block">
+      <label>reps</label>
+      <input id="input-reps" type="number" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="—">
+    </div>
+
+    <div id="field-weight" class="field-block hidden">
+      <label>lbs</label>
+      <input id="input-weight" type="number" inputmode="decimal" pattern="[0-9]*" autocomplete="off" placeholder="—">
+    </div>
+
+    <div class="ex-actions">
+      <button id="btn-same" onclick="fillSame()">same</button>
+      <button id="btn-skip" onclick="skipExercise()">skip</button>
+    </div>
+  </div>
+
+  <!-- CHECK EXERCISE SCREEN -->
+  <div id="screen-check" class="screen hidden">
+    <div class="ex-meta">
+      <span id="check-name"></span>
+      <span id="check-set-label"></span>
+    </div>
+    <div class="check-area" onclick="completeCheck()">
+      <div class="check-tap">tap</div>
+    </div>
+    <div class="ex-actions">
+      <button onclick="skipExercise()">skip</button>
+    </div>
+  </div>
+
+  <!-- END OF ROUND SCREEN -->
+  <div id="screen-round-end" class="screen hidden">
+    <div class="round-end-inner">
+      <div id="round-end-label" class="round-label"></div>
+      <button class="big-btn" onclick="nextRound()">+ another round</button>
+      <button class="done-btn" onclick="finishSession()">done</button>
+    </div>
+  </div>
+
+  <!-- SESSION DONE SCREEN -->
+  <div id="screen-done" class="screen hidden">
+    <div class="start-inner">
+      <div id="done-summary" class="done-summary"></div>
+      <button class="big-btn" onclick="resetToStart()">finish</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script src="log.js"></script>
+</body>
+</html>

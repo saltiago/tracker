@@ -1,0 +1,486 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg:       #0e0e0e;
+  --bg2:      #161616;
+  --bg3:      #1e1e1e;
+  --line:     #2a2a2a;
+  --dim:      #444;
+  --mid:      #777;
+  --text:     #e8e2d6;
+  --ghost:    #3a3530;
+  --accent:   #c8a96e;
+  --accent2:  #8a6f45;
+  --danger:   #a05050;
+  --mono:     'IBM Plex Mono', monospace;
+  --sans:     'IBM Plex Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  overscroll-behavior: none;
+}
+
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── HAMBURGER ── */
+#hamburger {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 100;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+}
+#hamburger span {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: var(--mid);
+  transition: background 0.2s;
+}
+#hamburger:hover span { background: var(--accent); }
+
+/* ── BACK BUTTON ── */
+#back-btn {
+  position: fixed;
+  top: 14px;
+  left: 18px;
+  z-index: 100;
+  background: none;
+  border: none;
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 6px;
+  transition: color 0.2s;
+}
+#back-btn:hover { color: var(--accent); }
+
+/* ── MENU OVERLAY ── */
+#menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+}
+#menu-panel {
+  position: absolute;
+  top: 0; right: 0;
+  width: 220px;
+  height: 100%;
+  background: var(--bg2);
+  border-left: 1px solid var(--line);
+  padding: 60px 32px 40px;
+  display: flex;
+  flex-direction: column;
+}
+.menu-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  background: none;
+  border: none;
+  color: var(--mid);
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: var(--mono);
+}
+.menu-item {
+  display: block;
+  color: var(--mid);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  transition: color 0.2s;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:hover, .menu-item.active { color: var(--accent); }
+
+/* ── SCREENS ── */
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 32px 48px;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── START / DONE ── */
+.start-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+}
+.start-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--mid);
+  text-transform: uppercase;
+}
+.big-btn {
+  width: 100%;
+  max-width: 280px;
+  padding: 20px;
+  background: none;
+  border: 1px solid var(--accent2);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.big-btn:hover, .big-btn:active {
+  background: var(--ghost);
+  border-color: var(--accent);
+}
+.done-btn {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  padding: 12px;
+  transition: color 0.2s;
+}
+.done-btn:hover { color: var(--mid); }
+
+/* ── EXERCISE SCREEN ── */
+.ex-meta {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+#ex-name, #check-name {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+#ex-set-label, #check-set-label {
+  font-size: 0.7rem;
+  color: var(--mid);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.ex-last {
+  font-size: 0.72rem;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 40px;
+  min-height: 1em;
+}
+
+.field-block {
+  width: 100%;
+  margin-bottom: 28px;
+}
+.field-block label {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--mid);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.field-block input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 2.8rem;
+  font-weight: 300;
+  padding: 8px 0;
+  outline: none;
+  transition: border-color 0.2s;
+  caret-color: var(--accent);
+}
+.field-block input:focus {
+  border-bottom-color: var(--accent);
+}
+.field-block input::placeholder {
+  color: var(--ghost);
+}
+
+.ex-actions {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+}
+.ex-actions button {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  padding: 10px 4px;
+  transition: color 0.2s;
+}
+.ex-actions button:hover { color: var(--mid); }
+#btn-same { color: var(--accent2); }
+#btn-same:hover { color: var(--accent); }
+
+/* ── CHECK SCREEN ── */
+.check-area {
+  width: 100%;
+  flex: 1;
+  max-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-bottom: 24px;
+}
+.check-area:active {
+  background: var(--ghost);
+  border-color: var(--accent);
+}
+.check-tap {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.check-area.done {
+  background: var(--ghost);
+  border-color: var(--accent2);
+}
+.check-area.done .check-tap {
+  color: var(--accent);
+  letter-spacing: 0.3em;
+}
+
+/* ── ROUND END ── */
+.round-end-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+.round-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--mid);
+  text-transform: uppercase;
+}
+
+/* ── DONE SUMMARY ── */
+.done-summary {
+  font-size: 0.75rem;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  line-height: 2;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* ── HIDDEN ── */
+.hidden { display: none !important; }
+
+/* ── PAGE HEADER (stats/editor/stretches) ── */
+.page-wrap {
+  min-height: 100dvh;
+  background: var(--bg);
+  padding: 70px 24px 48px;
+}
+.page-title {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--mid);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+/* ── STATS PAGE ── */
+.exercise-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.ex-pill {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ex-pill.active {
+  border-color: var(--accent2);
+  color: var(--accent);
+  background: var(--ghost);
+}
+.chart-wrap {
+  width: 100%;
+  height: 220px;
+  position: relative;
+  margin-bottom: 32px;
+}
+canvas#chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--mid);
+  letter-spacing: 0.05em;
+}
+.history-row .h-date { color: var(--dim); font-size: 0.68rem; }
+.history-row .h-val  { color: var(--text); }
+
+/* ── EDITOR PAGE ── */
+.pair-card {
+  border: 1px solid var(--line);
+  margin-bottom: 12px;
+  padding: 16px;
+}
+.pair-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.ex-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.ex-row input {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  padding: 6px 0;
+  outline: none;
+}
+.ex-row input:focus { border-bottom-color: var(--accent); }
+.type-toggle {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.type-toggle.check { border-color: var(--accent2); color: var(--accent2); }
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--line);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.del-btn:hover { color: var(--danger); }
+.add-ex-btn, .add-pair-btn, .save-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.add-ex-btn:hover, .add-pair-btn:hover { border-color: var(--accent2); color: var(--accent); }
+.save-btn {
+  width: 100%;
+  margin-top: 24px;
+  border-color: var(--accent2);
+  color: var(--accent);
+  padding: 16px;
+}
+.save-btn:hover { background: var(--ghost); }
+
+/* ── STRETCHES PAGE ── */
+.stretch-section {
+  margin-bottom: 32px;
+}
+.stretch-section-title {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--accent2);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.stretch-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.stretch-name {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+.stretch-detail {
+  font-size: 0.7rem;
+  color: var(--mid);
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+}

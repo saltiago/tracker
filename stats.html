@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>stats</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+  <div id="menu-overlay" class="hidden">
+    <div id="menu-panel">
+      <button class="menu-close" onclick="closeMenu()">✕</button>
+      <nav>
+        <a href="index.html" class="menu-item">log</a>
+        <a href="stats.html" class="menu-item active">stats</a>
+        <a href="editor.html" class="menu-item">program</a>
+        <a href="stretches.html" class="menu-item">stretches</a>
+      </nav>
+    </div>
+  </div>
+  <button id="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+
+  <div class="page-wrap">
+    <div class="page-title">stats</div>
+
+    <div class="exercise-picker" id="ex-picker"></div>
+
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+
+    <div class="history-list" id="history-list"></div>
+
+    <div id="no-data" class="hidden" style="color:var(--dim);font-size:0.78rem;letter-spacing:0.1em;padding:24px 0;">
+      no data yet
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let chartInstance = null;
+let selectedId = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const exercises = getAllExercises().filter(e => e.type === 'weighted');
+  const picker = document.getElementById('ex-picker');
+
+  exercises.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ex-pill';
+    btn.textContent = ex.name;
+    btn.onclick = () => selectEx(ex.id, btn);
+    picker.appendChild(btn);
+    if (i === 0) { btn.classList.add('active'); selectedId = ex.id; }
+  });
+
+  if (exercises.length) renderStats(exercises[0].id);
+});
+
+function selectEx(id, btn) {
+  document.querySelectorAll('.ex-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedId = id;
+  renderStats(id);
+}
+
+function renderStats(exerciseId) {
+  const data = getWeightHistory(exerciseId);
+  const noData = document.getElementById('no-data');
+
+  if (!data.length) {
+    document.querySelector('.chart-wrap').style.opacity = '0.2';
+    document.getElementById('history-list').innerHTML = '';
+    noData.classList.remove('hidden');
+    return;
+  }
+  noData.classList.add('hidden');
+  document.querySelector('.chart-wrap').style.opacity = '1';
+
+  // chart
+  const labels = data.map(d => {
+    const dt = new Date(d.date);
+    return `${dt.getMonth()+1}/${dt.getDate()}`;
+  });
+  const weights = data.map(d => d.weight);
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: weights,
+        borderColor: '#c8a96e',
+        borderWidth: 1.5,
+        pointBackgroundColor: '#c8a96e',
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        tension: 0.3,
+        fill: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: '#1e1e1e',
+        borderColor: '#2a2a2a',
+        borderWidth: 1,
+        titleColor: '#c8a96e',
+        bodyColor: '#777',
+        titleFont: { family: 'IBM Plex Mono', size: 11 },
+        bodyFont:  { family: 'IBM Plex Mono', size: 11 },
+        callbacks: {
+          label: ctx => `${ctx.parsed.y} lbs`
+        }
+      }},
+      scales: {
+        x: {
+          ticks: { color: '#444', font: { family: 'IBM Plex Mono', size: 10 } },
+          grid:  { color: '#1e1e1e' },
+          border: { color: '#2a2a2a' }
+        },
+        y: {
+          ticks: { color: '#444', font: { family: 'IBM Plex Mono', size: 10 } },
+          grid:  { color: '#1e1e1e' },
+          border: { color: '#2a2a2a' }
+        }
+      }
+    }
+  });
+
+  // history list (most recent first)
+  const sessions = getSessions();
+  const list = document.getElementById('history-list');
+  list.innerHTML = '';
+
+  const rows = sessions
+    .slice().reverse()
+    .map(s => {
+      const sets = s.sets.filter(x => x.exerciseId === exerciseId && !x.skipped && x.weight);
+      if (!sets.length) return null;
+      return { date: s.date, sets };
+    })
+    .filter(Boolean)
+    .slice(0, 20);
+
+  rows.forEach(r => {
+    const dt = new Date(r.date);
+    const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    r.sets.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      row.innerHTML = `
+        <span class="h-date">${i === 0 ? dateStr : ''}</span>
+        <span>set ${i+1}</span>
+        <span class="h-val">${s.weight} lbs × ${s.reps}</span>
+      `;
+      list.appendChild(row);
+    });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>program</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <div id="menu-overlay" class="hidden">
+    <div id="menu-panel">
+      <button class="menu-close" onclick="closeMenu()">✕</button>
+      <nav>
+        <a href="index.html" class="menu-item">log</a>
+        <a href="stats.html" class="menu-item">stats</a>
+        <a href="editor.html" class="menu-item active">program</a>
+        <a href="stretches.html" class="menu-item">stretches</a>
+      </nav>
+    </div>
+  </div>
+  <button id="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+
+  <div class="page-wrap">
+    <div class="page-title">program</div>
+
+    <div id="pairs-container"></div>
+
+    <button class="add-pair-btn" onclick="addPair()">+ add superset pair</button>
+
+    <button class="save-btn" onclick="saveEdits()">save program</button>
+
+    <div id="save-msg" style="text-align:center;font-size:0.7rem;letter-spacing:0.15em;color:var(--accent2);margin-top:16px;min-height:1em;"></div>
+
+    <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--line);">
+      <div class="page-title" style="margin-bottom:16px;">data</div>
+      <button class="add-pair-btn" onclick="exportData()">export JSON</button>
+      <br>
+      <button class="add-pair-btn" style="margin-top:8px;color:var(--danger);border-color:var(--danger);" onclick="clearData()">clear all session data</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let editProgram = [];
+
+window.addEventListener('DOMContentLoaded', () => {
+  editProgram = JSON.parse(JSON.stringify(getProgram())); // deep copy
+  renderPairs();
+});
+
+function renderPairs() {
+  const container = document.getElementById('pairs-container');
+  container.innerHTML = '';
+  editProgram.forEach((pair, pi) => {
+    const card = document.createElement('div');
+    card.className = 'pair-card';
+
+    const label = document.createElement('div');
+    label.className = 'pair-label';
+    label.textContent = `superset ${pi + 1}`;
+    card.appendChild(label);
+
+    pair.exercises.forEach((ex, ei) => {
+      const row = document.createElement('div');
+      row.className = 'ex-row';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = ex.name;
+      nameInput.placeholder = 'exercise name';
+      nameInput.oninput = e => { editProgram[pi].exercises[ei].name = e.target.value; };
+
+      const typeBtn = document.createElement('button');
+      typeBtn.className = `type-toggle${ex.type === 'check' ? ' check' : ''}`;
+      typeBtn.textContent = ex.type === 'check' ? 'check' : 'wt';
+      typeBtn.onclick = () => {
+        const cur = editProgram[pi].exercises[ei].type;
+        editProgram[pi].exercises[ei].type = cur === 'weighted' ? 'check' : 'weighted';
+        renderPairs();
+      };
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del-btn';
+      delBtn.textContent = '×';
+      delBtn.onclick = () => {
+        editProgram[pi].exercises.splice(ei, 1);
+        if (editProgram[pi].exercises.length === 0) editProgram.splice(pi, 1);
+        renderPairs();
+      };
+
+      row.appendChild(nameInput);
+      row.appendChild(typeBtn);
+      row.appendChild(delBtn);
+      card.appendChild(row);
+    });
+
+    if (pair.exercises.length < 4) {
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-ex-btn';
+      addBtn.textContent = '+ add exercise';
+      addBtn.onclick = () => {
+        editProgram[pi].exercises.push({ id: `ex_${Date.now()}`, name: '', type: 'weighted' });
+        renderPairs();
+      };
+      card.appendChild(addBtn);
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function addPair() {
+  editProgram.push({
+    pair: editProgram.length + 1,
+    exercises: [
+      { id: `ex_${Date.now()}`, name: '', type: 'weighted' },
+      { id: `ex_${Date.now()+1}`, name: '', type: 'weighted' },
+    ]
+  });
+  renderPairs();
+}
+
+function saveEdits() {
+  // assign stable ids from name if missing
+  editProgram.forEach(pair => {
+    pair.exercises.forEach(ex => {
+      if (!ex.id || ex.id.startsWith('ex_')) {
+        ex.id = ex.name.toLowerCase().replace(/\s+/g, '_') || `ex_${Date.now()}`;
+      }
+    });
+  });
+  saveProgram(editProgram);
+  const msg = document.getElementById('save-msg');
+  msg.textContent = 'saved';
+  setTimeout(() => msg.textContent = '', 2000);
+}
+
+function exportData() {
+  const data = { program: getProgram(), sessions: getSessions() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lifter_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearData() {
+  if (confirm('Delete all session data? Program is kept.')) {
+    localStorage.removeItem('lf_sessions');
+    const msg = document.getElementById('save-msg');
+    msg.textContent = 'session data cleared';
+    setTimeout(() => msg.textContent = '', 2000);
+  }
+}
+</script>
+</body>
+</html>
