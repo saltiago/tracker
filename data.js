@@ -65,14 +65,22 @@ function saveSession(sets) {
   saveSessions(sessions);
 }
 
-// Get last logged sets for a given exerciseId (most recent non-skipped)
-function getLastSets(exerciseId) {
+// Get last logged set for a given exerciseId + round (most recent session).
+// Returns { set, fromRound } — fromRound tells the ghost which round it's referencing.
+// Falls back to nearest available round if the exact round wasn't logged last time.
+function getLastSetForRound(exerciseId, round) {
   const sessions = getSessions();
   for (let i = sessions.length - 1; i >= 0; i--) {
     const sets = sessions[i].sets.filter(s => s.exerciseId === exerciseId && !s.skipped);
-    if (sets.length > 0) return sets;
+    if (!sets.length) continue;
+    const exact = sets.find(s => s.round === round);
+    if (exact) return { set: exact, fromRound: round };
+    const closest = sets.reduce((a, b) =>
+      Math.abs(b.round - round) < Math.abs(a.round - round) ? b : a
+    );
+    return { set: closest, fromRound: closest.round };
   }
-  return [];
+  return null;
 }
 
 // Get all weighted data points for an exercise: [{date, weight}]

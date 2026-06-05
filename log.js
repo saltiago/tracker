@@ -74,8 +74,7 @@ function startSession() {
   currentRound = 1;
   currentExIdx = 0;
   currentMod   = 'bw';
-  history = {};
-  exerciseList.forEach(function(ex) { history[ex.id] = getLastSets(ex.id); });
+  history = {};  // cleared; ghost now queried live per exercise + round
   renderCurrent();
 }
 
@@ -95,16 +94,17 @@ function renderExercise(ex, prefill) {
   document.getElementById('ex-name').textContent = ex.name;
   document.getElementById('ex-set-label').textContent = 'round ' + currentRound;
 
-  // ghost — show the matching round from last session, clamped
-  var last = history[ex.id];
-  if (last && last.length) {
-    var gi = Math.min(currentRound - 1, last.length - 1);
-    var ls = last[gi];
-    var ghost = 'last: ';
-    if (ls.seconds !== undefined)             ghost += ls.seconds + 's';
-    else if (ls.weight)                       ghost += ls.weight + ' lbs × ' + ls.reps;
-    else                                      ghost += ls.reps + ' reps';
-    if (ls.modifier && ls.modifier !== 'weighted') ghost += ' (' + ls.modifier + ')';
+  // ghost — round-specific: shows what you did in this exact round last session
+  var lastRef = getLastSetForRound(ex.id, currentRound);
+  if (lastRef) {
+    var ls = lastRef.set;
+    var ghost = lastRef.fromRound !== currentRound
+      ? 'last r' + lastRef.fromRound + ': '
+      : 'last: ';
+    if (ls.seconds !== undefined)                     ghost += ls.seconds + 's';
+    else if (ls.weight)                               ghost += ls.weight + ' lbs × ' + ls.reps;
+    else                                              ghost += ls.reps + ' reps';
+    if (ls.modifier && ls.modifier !== 'weighted')    ghost += ' (' + ls.modifier + ')';
     document.getElementById('ex-last').textContent = ghost;
   } else {
     document.getElementById('ex-last').textContent = '';
@@ -166,10 +166,9 @@ function completeCheck() {
 // ── SAME (fill from last session) ──
 function fillSame() {
   var ex = exerciseList[currentExIdx];
-  var last = history[ex.id];
-  if (!last || !last.length) return;
-  var gi = Math.min(currentRound - 1, last.length - 1);
-  var ls = last[gi];
+  var lastRef = getLastSetForRound(ex.id, currentRound);
+  if (!lastRef) return;
+  var ls = lastRef.set;
 
   if (ex.type === 'timed') {
     document.getElementById('input-seconds').value = ls.seconds || '';
