@@ -46,7 +46,7 @@
 <script>
 let editProgram = [];
 
-const TYPE_LABELS = { weighted: 'wt', bodyweight: 'bw', timed: 'time', check: 'check' };
+const TYPE_LABELS = { weighted: 'wt', bodyweight: 'bw', timed: 'time', check: 'check', band: 'band' };
 
 window.addEventListener('DOMContentLoaded', () => {
   editProgram = JSON.parse(JSON.stringify(getProgram()));
@@ -78,7 +78,7 @@ function renderPairs() {
       // type dropdown
       const typeSelect = document.createElement('select');
       typeSelect.className = 'type-select';
-      ['weighted','bodyweight','timed','check'].forEach(t => {
+      ['weighted','bodyweight','timed','check','band'].forEach(t => {
         const opt = document.createElement('option');
         opt.value = t;
         opt.textContent = TYPE_LABELS[t];

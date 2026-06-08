@@ -23,6 +23,8 @@ window.addEventListener('DOMContentLoaded', function() {
 function repsVal()    { return document.getElementById('input-reps').value.trim(); }
 function weightVal()  { return document.getElementById('input-weight').value.trim(); }
 function secondsVal() { return document.getElementById('input-seconds').value.trim(); }
+function band1Val()   { return document.getElementById('input-band1').value; }
+function band2Val()   { return document.getElementById('input-band2').value; }
 
 // ── AUTO-ADVANCE (debounce) ──
 function clearAdvance() {
@@ -46,6 +48,7 @@ function requiredFilled() {
     if (currentMod === 'weighted') return !!(repsVal() && weightVal());
     return !!repsVal();
   }
+  if (ex.type === 'band') return !!repsVal();
   // weighted
   return !!(repsVal() && weightVal());
 }
@@ -125,6 +128,14 @@ function renderExercise(ex, prefill) {
     document.getElementById('field-reps').classList.remove('hidden');
     if (currentMod === 'weighted') document.getElementById('field-weight').classList.remove('hidden');
 
+  } else if (ex.type === 'band') {
+    document.getElementById('field-band1').classList.remove('hidden');
+    document.getElementById('field-band2').classList.remove('hidden');
+    document.getElementById('field-reps').classList.remove('hidden');
+    // prefill band selects
+    document.getElementById('input-band1').value = prefill.band1 || '';
+    document.getElementById('input-band2').value = prefill.band2 || '';
+
   } else {
     // weighted — reps AND weight on one screen
     document.getElementById('field-reps').classList.remove('hidden');
@@ -135,7 +146,7 @@ function renderExercise(ex, prefill) {
 }
 
 function hideAll() {
-  ['field-modifier','field-reps','field-weight','field-seconds'].forEach(function(id) {
+  ['field-modifier','field-reps','field-weight','field-seconds','field-band1','field-band2'].forEach(function(id) {
     document.getElementById(id).classList.add('hidden');
   });
 }
@@ -172,6 +183,10 @@ function fillSame() {
 
   if (ex.type === 'timed') {
     document.getElementById('input-seconds').value = ls.seconds || '';
+  } else if (ex.type === 'band') {
+    document.getElementById('input-band1').value = ls.band1 || '';
+    document.getElementById('input-band2').value = ls.band2 || '';
+    document.getElementById('input-reps').value  = ls.reps  || '';
   } else {
     document.getElementById('input-reps').value   = ls.reps   || '';
     document.getElementById('input-weight').value = ls.weight || '';
@@ -202,7 +217,9 @@ function commitAndAdvance() {
     reps:     repsVal(),
     weight:   weightVal(),
     seconds:  secondsVal(),
-    modifier: currentMod
+    modifier: currentMod,
+    band1:    band1Val(),
+    band2:    band2Val()
   };
 
   var set = { exerciseId: ex.id, round: currentRound, skipped: false };
@@ -210,6 +227,13 @@ function commitAndAdvance() {
 
   if (ex.type === 'timed') {
     if (entered.seconds) { set.seconds = entered.seconds; meaningful = true; }
+  } else if (ex.type === 'band') {
+    if (entered.reps) {
+      set.reps = entered.reps;
+      if (entered.band1) set.band1 = entered.band1;
+      if (entered.band2) set.band2 = entered.band2;
+      meaningful = true;
+    }
   } else if (ex.type === 'check') {
     set.check = true; meaningful = true;
   } else if (ex.type === 'bodyweight') {

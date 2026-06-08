@@ -326,8 +326,8 @@ body.log-page {
 }
 .type-select:focus { border-color: var(--accent2); color: var(--accent); }
 
-/* ── MODIFIER SELECT (log) ── */
-#input-modifier {
+/* ── MODIFIER / BAND SELECTS (log) ── */
+#input-modifier, #input-band1, #input-band2 {
   width: 100%;
   background: none;
   border: none;
