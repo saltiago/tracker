@@ -547,6 +547,33 @@ canvas#chart {
   line-height: 1.6;
 }
 
+/* ── TAPPABLE ROUND LABEL ── */
+#ex-set-label, #check-set-label {
+  cursor: default;
+  transition: color 0.15s;
+}
+/* only warmup is tappable — JS handles the condition */
+#ex-set-label:active, #check-set-label:active {
+  color: var(--accent);
+}
+
+/* ── POPUP CLOSE BUTTON ── */
+.popup-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+.popup-close:hover { color: var(--mid); }
+.popup { position: relative; }
+
 /* ── END BUTTON ── */
 #end-btn {
   position: fixed;

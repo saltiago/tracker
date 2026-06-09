@@ -19,6 +19,11 @@ window.addEventListener('DOMContentLoaded', function() {
   show('screen-start');
 });
 
+// ── ROUND LABEL HELPER ──
+function roundLabel() {
+  return currentRound === 0 ? 'warmup' : 'round ' + currentRound;
+}
+
 // ── FIELD VALUE HELPERS ──
 function repsVal()    { return document.getElementById('input-reps').value.trim(); }
 function weightVal()  { return document.getElementById('input-weight').value.trim(); }
@@ -74,7 +79,7 @@ function show(id) {
 function startSession() {
   sessionSets  = [];
   stateHistory = [];
-  currentRound = 1;
+  currentRound = 0;  // 0 = warmup
   currentExIdx = 0;
   currentMod   = 'bw';
   history = {};  // cleared; ghost now queried live per exercise + round
@@ -95,15 +100,16 @@ function renderExercise(ex, prefill) {
 
   // meta
   document.getElementById('ex-name').textContent = ex.name;
-  document.getElementById('ex-set-label').textContent = 'round ' + currentRound;
+  document.getElementById('ex-set-label').textContent = roundLabel();
 
   // ghost — round-specific: shows what you did in this exact round last session
   var lastRef = getLastSetForRound(ex.id, currentRound);
   if (lastRef) {
     var ls = lastRef.set;
-    var ghost = lastRef.fromRound !== currentRound
-      ? 'last r' + lastRef.fromRound + ': '
-      : 'last: ';
+    var fr    = lastRef.fromRound;
+    var ghost = fr !== currentRound
+      ? (fr === 0 ? 'last warmup: ' : 'last r' + fr + ': ')
+      : (fr === 0 ? 'last warmup: ' : 'last: ');
     if (ls.seconds !== undefined)                     ghost += ls.seconds + 's';
     else if (ls.weight)                               ghost += ls.weight + ' lbs × ' + ls.reps;
     else                                              ghost += ls.reps + ' reps';
@@ -162,7 +168,7 @@ function onModifierChange() {
 function renderCheck(ex, prefill) {
   clearAdvance();
   document.getElementById('check-name').textContent = ex.name;
-  document.getElementById('check-set-label').textContent = 'round ' + currentRound;
+  document.getElementById('check-set-label').textContent = roundLabel();
   document.querySelector('.check-area').classList.remove('done');
   document.querySelector('.check-tap').textContent = 'tap';
   show('screen-check');
@@ -293,15 +299,37 @@ function goNext() {
 
 // ── ROUND END ──
 function showRoundEnd() {
-  document.getElementById('round-end-label').textContent = 'round ' + currentRound + ' complete';
+  var endLabel = currentRound === 0 ? 'warmup complete' : 'round ' + currentRound + ' complete';
+  document.getElementById('round-end-label').textContent = endLabel;
   show('screen-round-end');
 }
 
 function nextRound() {
-  currentRound++;
+  currentRound = currentRound === 0 ? 1 : currentRound + 1;
   currentExIdx = 0;
   currentMod   = 'bw';
   stateHistory = [];
+  renderCurrent();
+}
+
+// ── WARMUP POPUP ──
+function onRoundLabelTap() {
+  if (currentRound === 0) {
+    document.getElementById('warmup-popup').classList.remove('hidden');
+  }
+}
+function closeWarmupPopup() {
+  document.getElementById('warmup-popup').classList.add('hidden');
+}
+function skipWarmup() {
+  closeWarmupPopup();
+  clearAdvance();
+  // discard any warmup sets already logged this round and jump to round 1
+  sessionSets = sessionSets.filter(function(s) { return s.round !== 0; });
+  stateHistory = [];
+  currentRound = 1;
+  currentExIdx = 0;
+  currentMod   = 'bw';
   renderCurrent();
 }
 
@@ -322,7 +350,10 @@ function finishSession(save) {
   var skips    = sessionSets.filter(function(s) { return s.skipped; });
 
   var total   = weighted.length + bwSets.length + timed.length;
-  var summary = currentRound + ' round' + (currentRound > 1 ? 's' : '');
+  var workRounds = currentRound === 0 ? 0 : currentRound;
+  var hasWarmup  = sessionSets.some(function(s) { return s.round === 0 && !s.skipped; });
+  var summary    = (hasWarmup ? 'warmup + ' : '') +
+                   workRounds + ' round' + (workRounds !== 1 ? 's' : '');
   summary += '  \u00b7  ' + total + ' sets logged';
   if (checks.length) summary += '  \u00b7  ' + checks.length + ' checks';
   if (skips.length)  summary += '  \u00b7  ' + skips.length + ' skipped';
@@ -335,7 +366,7 @@ function finishSession(save) {
 function resetToStart() {
   sessionSets  = [];
   stateHistory = [];
-  currentRound = 1;
+  currentRound = 0;
   currentExIdx = 0;
   currentMod   = 'bw';
   show('screen-start');

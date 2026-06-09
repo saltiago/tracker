@@ -18,7 +18,7 @@
         <a href="index.html" class="menu-item active">log</a>
         <a href="stats.html" class="menu-item">stats</a>
         <a href="editor.html" class="menu-item">program</a>
-        <a href="stretches.html" class="menu-item">stretches</a>
+        <a href="stretches.html" class="menu-item">mobility</a>
       </nav>
     </div>
   </div>
@@ -30,6 +30,15 @@
       <button class="popup-btn-primary" onclick="endSave()">save session</button>
       <button class="popup-btn-danger" onclick="endDiscard()">discard</button>
       <button class="popup-btn-cancel" onclick="endCancel()">cancel</button>
+    </div>
+  </div>
+
+  <!-- WARMUP SKIP POPUP -->
+  <div id="warmup-popup" class="popup-overlay hidden">
+    <div class="popup">
+      <button class="popup-close" onclick="closeWarmupPopup()">✕</button>
+      <div class="popup-label">warmup</div>
+      <button class="popup-btn-primary" onclick="skipWarmup()">skip warmup</button>
     </div>
   </div>
 
@@ -55,7 +64,7 @@
   <div id="screen-exercise" class="screen hidden">
     <div class="ex-meta">
       <span id="ex-name"></span>
-      <span id="ex-set-label"></span>
+      <span id="ex-set-label" onclick="onRoundLabelTap()"></span>
     </div>
     <div id="ex-last" class="ex-last"></div>
 
@@ -128,7 +137,7 @@
   <div id="screen-check" class="screen hidden">
     <div class="ex-meta">
       <span id="check-name"></span>
-      <span id="check-set-label"></span>
+      <span id="check-set-label" onclick="onRoundLabelTap()"></span>
     </div>
     <div class="check-area" onclick="completeCheck()">
       <div class="check-tap">tap</div>
