@@ -96,7 +96,14 @@ function renderCurrent(prefill) {
 function renderExercise(ex, prefill) {
   clearAdvance();
   prefill = prefill || {};
-  currentMod = prefill.modifier || currentMod || 'bw';
+  // pre-populate modifier from last session if no prefill and no current mod set
+  if (prefill.modifier) {
+    currentMod = prefill.modifier;
+  } else if (ex.type === 'bodyweight') {
+    var lastRef0 = getLastSetForRound(ex.id, currentRound);
+    if (lastRef0 && lastRef0.set.modifier) currentMod = lastRef0.set.modifier;
+    else currentMod = currentMod || 'bw';
+  }
 
   // meta
   document.getElementById('ex-name').textContent = ex.name;
@@ -138,9 +145,11 @@ function renderExercise(ex, prefill) {
     document.getElementById('field-band1').classList.remove('hidden');
     document.getElementById('field-band2').classList.remove('hidden');
     document.getElementById('field-reps').classList.remove('hidden');
-    // prefill band selects
-    document.getElementById('input-band1').value = prefill.band1 || '';
-    document.getElementById('input-band2').value = prefill.band2 || '';
+    // prefill band selects — from prefill, then last session
+    var lastBandRef = getLastSetForRound(ex.id, currentRound);
+    var lastBand = lastBandRef ? lastBandRef.set : null;
+    document.getElementById('input-band1').value = prefill.band1 !== undefined ? prefill.band1 : (lastBand && lastBand.band1 || '');
+    document.getElementById('input-band2').value = prefill.band2 !== undefined ? prefill.band2 : (lastBand && lastBand.band2 || '');
 
   } else {
     // weighted — reps AND weight on one screen
@@ -310,6 +319,70 @@ function nextRound() {
   currentMod   = 'bw';
   stateHistory = [];
   renderCurrent();
+}
+
+// ── EDIT EXERCISE POPUP ──
+var editingExIdx = null;
+var editingSelectedType = null;
+var TYPES = ['weighted','bodyweight','timed','check','band'];
+var TYPE_LABELS = { weighted:'wt', bodyweight:'bw', timed:'time', check:'check', band:'band' };
+
+function openEditExercise() {
+  editingExIdx = currentExIdx;
+  var ex = exerciseList[editingExIdx];
+  editingSelectedType = ex.type;
+
+  document.getElementById('edit-ex-name').value = ex.name;
+  renderTypeButtons();
+  document.getElementById('edit-ex-popup').classList.remove('hidden');
+}
+
+function renderTypeButtons() {
+  var row = document.getElementById('edit-ex-types');
+  row.innerHTML = '';
+  TYPES.forEach(function(t) {
+    var btn = document.createElement('button');
+    btn.className = 'popup-type-btn' + (t === editingSelectedType ? ' selected' : '');
+    btn.textContent = TYPE_LABELS[t];
+    btn.onclick = function() {
+      editingSelectedType = t;
+      renderTypeButtons();
+    };
+    row.appendChild(btn);
+  });
+}
+
+function closeEditExercise() {
+  document.getElementById('edit-ex-popup').classList.add('hidden');
+  editingExIdx = null;
+}
+
+function saveEditExercise() {
+  if (editingExIdx === null) return;
+  var newName = document.getElementById('edit-ex-name').value.trim();
+  if (!newName) return;
+
+  // Update in-memory exerciseList
+  exerciseList[editingExIdx].name = newName;
+  exerciseList[editingExIdx].type = editingSelectedType;
+
+  // Update program and persist
+  var prog = getProgram();
+  var flat = prog.flatMap(function(p) { return p.exercises; });
+  var target = flat.find(function(e) { return e.id === exerciseList[editingExIdx].id; });
+  if (target) {
+    target.name = newName;
+    target.type = editingSelectedType;
+    saveProgram(prog);
+  }
+
+  closeEditExercise();
+  // Re-render current screen with updated info, preserving entered values
+  var entered = {
+    reps: repsVal(), weight: weightVal(), seconds: secondsVal(),
+    modifier: currentMod, band1: band1Val(), band2: band2Val()
+  };
+  renderCurrent(entered);
 }
 
 // ── WARMUP POPUP ──

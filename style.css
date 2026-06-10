@@ -659,3 +659,106 @@ canvas#chart {
   text-align: center;
 }
 .popup-btn-cancel:hover { color: var(--mid); }
+
+/* ── DARK / LIGHT MODE ── */
+body.light {
+  --bg:      #f4f1ec;
+  --bg2:     #ede9e2;
+  --bg3:     #e4e0d8;
+  --line:    #ccc9c0;
+  --dim:     #aaa79e;
+  --mid:     #777470;
+  --text:    #1a1a18;
+  --ghost:   #e0dbd0;
+  --accent:  #8a6030;
+  --accent2: #b08040;
+  --danger:  #a03030;
+}
+
+/* ── THEME TOGGLE ── */
+#theme-toggle {
+  position: fixed;
+  top: 16px;
+  left: 18px;
+  z-index: 100;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.toggle-track {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--line);
+  position: relative;
+  transition: background 0.25s;
+  flex-shrink: 0;
+  border: 1px solid var(--dim);
+}
+body.light .toggle-track { background: var(--accent2); border-color: var(--accent); }
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mid);
+  transition: transform 0.25s, background 0.25s;
+}
+body.light .toggle-thumb { transform: translateX(16px); background: #fff; }
+.toggle-icon {
+  font-size: 0.75rem;
+  color: var(--dim);
+  user-select: none;
+}
+
+/* ── EXERCISE NAME TAPPABLE ── */
+#ex-name, #check-name {
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+#ex-name:active, #check-name:active { color: var(--accent); }
+
+/* ── EDIT EXERCISE POPUP ── */
+.popup-input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  padding: 8px 0;
+  outline: none;
+  margin-bottom: 16px;
+  caret-color: var(--accent);
+}
+.popup-input:focus { border-bottom-color: var(--accent); }
+.popup-type-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.popup-type-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.popup-type-btn.selected {
+  border-color: var(--accent2);
+  color: var(--accent);
+  background: var(--ghost);
+}

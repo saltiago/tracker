@@ -33,6 +33,17 @@
     </div>
   </div>
 
+  <!-- EDIT EXERCISE POPUP -->
+  <div id="edit-ex-popup" class="popup-overlay hidden">
+    <div class="popup">
+      <button class="popup-close" onclick="closeEditExercise()">✕</button>
+      <div class="popup-label">edit exercise</div>
+      <input id="edit-ex-name" class="popup-input" type="text" placeholder="exercise name" autocomplete="off">
+      <div class="popup-type-row" id="edit-ex-types"></div>
+      <button class="popup-btn-primary" onclick="saveEditExercise()">save</button>
+    </div>
+  </div>
+
   <!-- WARMUP SKIP POPUP -->
   <div id="warmup-popup" class="popup-overlay hidden">
     <div class="popup">
@@ -63,7 +74,7 @@
   <!-- EXERCISE INPUT SCREEN -->
   <div id="screen-exercise" class="screen hidden">
     <div class="ex-meta">
-      <span id="ex-name"></span>
+      <span id="ex-name" onclick="openEditExercise()"></span>
       <span id="ex-set-label" onclick="onRoundLabelTap()"></span>
     </div>
     <div id="ex-last" class="ex-last"></div>
@@ -136,7 +147,7 @@
   <!-- CHECK EXERCISE SCREEN -->
   <div id="screen-check" class="screen hidden">
     <div class="ex-meta">
-      <span id="check-name"></span>
+      <span id="check-name" onclick="openEditExercise()"></span>
       <span id="check-set-label" onclick="onRoundLabelTap()"></span>
     </div>
     <div class="check-area" onclick="completeCheck()">

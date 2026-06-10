@@ -115,3 +115,13 @@ document.addEventListener('click', e => {
     closeMenu();
   }
 });
+
+// ── THEME (shared across all pages) ──
+(function initTheme() {
+  if (localStorage.getItem('lf_theme') === 'light') document.body.classList.add('light');
+})();
+
+function toggleTheme() {
+  var isLight = document.body.classList.toggle('light');
+  localStorage.setItem('lf_theme', isLight ? 'light' : 'dark');
+}
