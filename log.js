@@ -76,10 +76,15 @@ function show(id) {
 }
 
 // ── SESSION START ──
-function startSession() {
+function openStartPopup() {
+  document.getElementById('start-popup').classList.remove('hidden');
+}
+
+function startSession(withWarmup) {
+  document.getElementById('start-popup').classList.add('hidden');
   sessionSets  = [];
   stateHistory = [];
-  currentRound = 0;  // 0 = warmup
+  currentRound = withWarmup ? 0 : 1;
   currentExIdx = 0;
   currentMod   = 'bw';
   history = {};  // cleared; ghost now queried live per exercise + round

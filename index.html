@@ -23,6 +23,15 @@
     </div>
   </div>
 
+  <!-- START / WARMUP POPUP -->
+  <div id="start-popup" class="popup-overlay hidden">
+    <div class="popup">
+      <div class="popup-label">warmup?</div>
+      <button class="popup-btn-primary" onclick="startSession(true)">yes — start with warmup</button>
+      <button class="popup-btn-danger" onclick="startSession(false)">no — go to round 1</button>
+    </div>
+  </div>
+
   <!-- END WORKOUT POPUP -->
   <div id="end-popup" class="popup-overlay hidden">
     <div class="popup">
@@ -67,7 +76,7 @@
   <div id="screen-start" class="screen">
     <div class="start-inner">
       <div class="start-label">ready</div>
-      <button class="big-btn" onclick="startSession()">start</button>
+      <button class="big-btn" onclick="openStartPopup()">start</button>
     </div>
   </div>
 
