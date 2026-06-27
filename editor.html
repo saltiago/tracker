@@ -90,7 +90,20 @@ function renderPairs() {
       });
       typeSelect.onchange = e => {
         editProgram[pi].exercises[ei].type = e.target.value;
+        renderPairs();
       };
+
+      const bilateralWrap = document.createElement('label');
+      bilateralWrap.className = 'bilateral-wrap' + (ex.type === 'timed' ? '' : ' hidden');
+      bilateralWrap.title = 'bilateral';
+      const bilateralChk = document.createElement('input');
+      bilateralChk.type = 'checkbox';
+      bilateralChk.checked = !!ex.bilateral;
+      bilateralChk.onchange = e => { editProgram[pi].exercises[ei].bilateral = e.target.checked; };
+      const bilateralLbl = document.createElement('span');
+      bilateralLbl.textContent = 'L/R';
+      bilateralWrap.appendChild(bilateralChk);
+      bilateralWrap.appendChild(bilateralLbl);
 
       const delBtn = document.createElement('button');
       delBtn.className = 'del-btn';
@@ -103,6 +116,7 @@ function renderPairs() {
 
       row.appendChild(nameInput);
       row.appendChild(typeSelect);
+      row.appendChild(bilateralWrap);
       row.appendChild(delBtn);
       card.appendChild(row);
     });

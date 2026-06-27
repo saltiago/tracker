@@ -20,6 +20,11 @@
         <a href="editor.html" class="menu-item">program</a>
         <a href="stretches.html" class="menu-item">mobility</a>
       </nav>
+      <div class="menu-volume">
+        <div class="menu-volume-label">beep volume</div>
+        <input type="range" id="beep-volume" min="0" max="1" step="0.05" value="0.6"
+               oninput="setBeepVolume(this.value)">
+      </div>
     </div>
   </div>
 
@@ -50,6 +55,40 @@
       <input id="edit-ex-name" class="popup-input" type="text" placeholder="exercise name" autocomplete="off">
       <div class="popup-type-row" id="edit-ex-types"></div>
       <button class="popup-btn-primary" onclick="saveEditExercise()">save</button>
+    </div>
+  </div>
+
+  <!-- STOPWATCH OVERLAY -->
+  <div id="stopwatch-overlay" class="popup-overlay hidden">
+    <div class="popup stopwatch-popup">
+      <button class="popup-close" onclick="closeStopwatch()">✕</button>
+      <div class="popup-label" id="sw-ex-label"></div>
+
+      <!-- Countdown selector -->
+      <div class="sw-countdown-row">
+        <span class="sw-countdown-label">countdown</span>
+        <select id="sw-countdown-select">
+          <option value="0">none</option>
+          <option value="5">5s</option>
+          <option value="15">15s</option>
+          <option value="30">30s</option>
+        </select>
+      </div>
+
+      <!-- Big timer display -->
+      <div id="sw-display" class="sw-display">0.0</div>
+      <div id="sw-phase" class="sw-phase"></div>
+
+      <!-- Controls -->
+      <div class="sw-controls">
+        <button id="sw-start-stop" class="sw-btn-primary" onclick="swToggle()">start</button>
+        <button class="sw-btn-secondary" onclick="swReset()">reset</button>
+      </div>
+
+      <!-- Save buttons -->
+      <div class="sw-save-row" id="sw-save-row">
+        <!-- Populated by JS based on bilateral setting -->
+      </div>
     </div>
   </div>
 
@@ -140,9 +179,14 @@
 
     <!-- Seconds -->
     <div id="field-seconds" class="field-block hidden">
-      <label>seconds</label>
-      <input id="input-seconds" type="number" inputmode="numeric" pattern="[0-9]*"
-             autocomplete="off" placeholder="—">
+      <div class="seconds-row">
+        <div>
+          <label>seconds</label>
+          <input id="input-seconds" type="number" inputmode="numeric" pattern="[0-9]*"
+                 autocomplete="off" placeholder="—">
+        </div>
+        <button class="stopwatch-open-btn" onclick="openStopwatch()">⏱</button>
+      </div>
     </div>
 
     <div class="ex-actions">

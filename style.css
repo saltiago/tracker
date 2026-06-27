@@ -762,3 +762,179 @@ body.light .toggle-thumb { transform: translateX(16px); background: #fff; }
   color: var(--accent);
   background: var(--ghost);
 }
+
+/* ── MENU VOLUME SLIDER ── */
+.menu-volume {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.menu-volume-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.menu-volume input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ── SECONDS ROW (with stopwatch button) ── */
+.seconds-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+.seconds-row > div { flex: 1; }
+.seconds-row label {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--mid);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.seconds-row input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 2.8rem;
+  font-weight: 300;
+  padding: 8px 0;
+  outline: none;
+  caret-color: var(--accent);
+}
+.seconds-row input:focus { border-bottom-color: var(--accent); }
+.stopwatch-open-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-size: 1.4rem;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.stopwatch-open-btn:hover { border-color: var(--accent2); color: var(--accent); }
+
+/* ── STOPWATCH POPUP ── */
+.stopwatch-popup {
+  width: 300px;
+  max-width: 92vw;
+}
+.sw-countdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.sw-countdown-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+#sw-countdown-select {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+}
+.sw-display {
+  font-size: 4rem;
+  font-weight: 300;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: -0.02em;
+  margin: 8px 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+.sw-phase {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--accent2);
+  text-align: center;
+  text-transform: uppercase;
+  min-height: 1.2em;
+  margin-bottom: 20px;
+}
+.sw-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.sw-btn-primary {
+  flex: 2;
+  padding: 14px;
+  background: none;
+  border: 1px solid var(--accent2);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sw-btn-primary:hover { background: var(--ghost); }
+.sw-btn-secondary {
+  flex: 1;
+  padding: 14px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sw-btn-secondary:hover { border-color: var(--mid); color: var(--mid); }
+.sw-save-row {
+  display: flex;
+  gap: 10px;
+}
+.sw-save-btn {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sw-save-btn:not(:disabled):hover { border-color: var(--accent2); color: var(--accent); }
+.sw-save-btn:disabled { opacity: 0.35; cursor: default; }
+.sw-save-btn.sw-saved {
+  border-color: var(--accent2);
+  color: var(--accent2);
+  opacity: 0.6;
+}
+
+/* ── BILATERAL WRAP (editor) ── */
+.bilateral-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: var(--mid);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.bilateral-wrap input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
+.bilateral-wrap.hidden { display: none !important; }

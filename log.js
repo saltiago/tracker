@@ -47,7 +47,12 @@ function setupAutoAdvance() {
 
 function requiredFilled() {
   var ex = exerciseList[currentExIdx];
-  if (ex.type === 'timed')  return !!secondsVal();
+  if (ex.type === 'timed') {
+    var sv = secondsVal();
+    if (!sv) return false;
+    if (ex.bilateral) return sv.indexOf('/') !== -1;  // need both L and R
+    return true;
+  }
   if (ex.type === 'check')  return false; // committed by tap
   if (ex.type === 'bodyweight') {
     if (currentMod === 'weighted') return !!(repsVal() && weightVal());
@@ -202,7 +207,11 @@ function fillSame() {
   var ls = lastRef.set;
 
   if (ex.type === 'timed') {
-    document.getElementById('input-seconds').value = ls.seconds || '';
+    if (ls.secondsL !== undefined || ls.secondsR !== undefined) {
+      document.getElementById('input-seconds').value = (ls.secondsL||0) + '/' + (ls.secondsR||0);
+    } else {
+      document.getElementById('input-seconds').value = ls.seconds || '';
+    }
   } else if (ex.type === 'band') {
     document.getElementById('input-band1').value = ls.band1 || '';
     document.getElementById('input-band2').value = ls.band2 || '';
@@ -246,7 +255,16 @@ function commitAndAdvance() {
   var meaningful = false;
 
   if (ex.type === 'timed') {
-    if (entered.seconds) { set.seconds = entered.seconds; meaningful = true; }
+    if (entered.seconds) {
+      if (ex.bilateral && entered.seconds.indexOf('/') !== -1) {
+        var parts = entered.seconds.split('/');
+        set.secondsL = parseInt(parts[0], 10);
+        set.secondsR = parseInt(parts[1], 10);
+      } else {
+        set.seconds = entered.seconds;
+      }
+      meaningful = true;
+    }
   } else if (ex.type === 'band') {
     if (entered.reps) {
       set.reps = entered.reps;
@@ -448,4 +466,240 @@ function resetToStart() {
   currentExIdx = 0;
   currentMod   = 'bw';
   show('screen-start');
+}
+
+// ══════════════════════════════════════════════
+// ── STOPWATCH + BEEP ENGINE ──
+// ══════════════════════════════════════════════
+
+var swRunning    = false;
+var swStartTime  = 0;
+var swElapsed    = 0;       // ms accumulated before last pause
+var swRafId      = null;
+var swIsBilateral = false;
+var swSavedL     = null;    // seconds saved for L side
+var swSavedR     = null;    // seconds saved for R side
+var swHasStopped = false;   // true once stopped after at least one run
+var countdownTimer = null;
+var beepVolume   = parseFloat(localStorage.getItem('lf_beep_vol') || '0.6');
+
+// ── AUDIO ──
+var audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function beep(freq, duration, volume, delay) {
+  delay = delay || 0;
+  var ctx = getAudioCtx();
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = freq;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+  gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + delay + 0.01);
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + delay + duration);
+  osc.start(ctx.currentTime + delay);
+  osc.stop(ctx.currentTime + delay + duration + 0.05);
+}
+
+function playCountdownBeeps(seconds) {
+  // 3-2-1 beeps: short beeps for 3 and 2, long for 1 (go!)
+  var vol = beepVolume;
+  var startDelay = seconds - 3;
+  if (startDelay < 0) startDelay = 0;
+  // beep at each of last 3 seconds
+  if (seconds >= 3) { beep(880, 0.12, vol, startDelay); }         // 3
+  if (seconds >= 2) { beep(880, 0.12, vol, startDelay + 1); }     // 2
+  beep(1200, 0.5, vol, startDelay + 2);                            // 1 (GO — longer, higher)
+}
+
+function setBeepVolume(val) {
+  beepVolume = parseFloat(val);
+  localStorage.setItem('lf_beep_vol', beepVolume);
+  // play a test beep
+  beep(880, 0.15, beepVolume, 0);
+}
+
+// Init beep volume slider
+window.addEventListener('DOMContentLoaded', function() {
+  var savedVol = localStorage.getItem('lf_beep_vol');
+  if (savedVol !== null) {
+    beepVolume = parseFloat(savedVol);
+    var slider = document.getElementById('beep-volume');
+    if (slider) slider.value = beepVolume;
+  }
+});
+
+// ── OPEN / CLOSE STOPWATCH ──
+function openStopwatch() {
+  var ex = exerciseList[currentExIdx];
+  swIsBilateral = !!(ex && ex.bilateral);
+  swSavedL = null;
+  swSavedR = null;
+  swHasStopped = false;
+  swRunning = false;
+  swElapsed = 0;
+  clearCountdown();
+
+  document.getElementById('sw-ex-label').textContent = ex ? ex.name : '';
+  document.getElementById('sw-display').textContent = '0.0';
+  document.getElementById('sw-phase').textContent = '';
+  document.getElementById('sw-start-stop').textContent = 'start';
+  document.getElementById('sw-start-stop').disabled = false;
+  renderSwSaveButtons();
+
+  document.getElementById('stopwatch-overlay').classList.remove('hidden');
+}
+
+function closeStopwatch() {
+  swStop();
+  clearCountdown();
+  document.getElementById('stopwatch-overlay').classList.add('hidden');
+}
+
+// ── TOGGLE START/STOP ──
+function swToggle() {
+  // If there's a countdown active, cancel it and go straight to run
+  if (countdownTimer !== null) {
+    clearCountdown();
+    swBeginRun();
+    return;
+  }
+  if (swRunning) {
+    swStop();
+  } else {
+    var cdSec = parseInt(document.getElementById('sw-countdown-select').value, 10);
+    if (cdSec > 0) {
+      swStartCountdown(cdSec);
+    } else {
+      swBeginRun();
+    }
+  }
+}
+
+function swStartCountdown(seconds) {
+  var btn = document.getElementById('sw-start-stop');
+  btn.textContent = 'cancel';
+  document.getElementById('sw-phase').textContent = 'get ready...';
+  playCountdownBeeps(seconds);
+
+  var remaining = seconds;
+  document.getElementById('sw-display').textContent = remaining.toFixed(0);
+
+  countdownTimer = setInterval(function() {
+    remaining -= 1;
+    if (remaining <= 0) {
+      clearCountdown();
+      swBeginRun();
+    } else {
+      document.getElementById('sw-display').textContent = remaining.toFixed(0);
+    }
+  }, 1000);
+}
+
+function clearCountdown() {
+  if (countdownTimer !== null) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+}
+
+function swBeginRun() {
+  swRunning = true;
+  swStartTime = performance.now() - swElapsed;
+  document.getElementById('sw-start-stop').textContent = 'stop';
+  document.getElementById('sw-phase').textContent = 'running';
+  swTick();
+}
+
+function swStop() {
+  if (!swRunning) return;
+  swRunning = false;
+  swHasStopped = true;
+  swElapsed = performance.now() - swStartTime;
+  if (swRafId) { cancelAnimationFrame(swRafId); swRafId = null; }
+  document.getElementById('sw-start-stop').textContent = 'start';
+  document.getElementById('sw-phase').textContent = '';
+  renderSwSaveButtons();
+}
+
+function swReset() {
+  swStop();
+  clearCountdown();
+  swRunning = false;
+  swElapsed = 0;
+  swHasStopped = false;
+  document.getElementById('sw-display').textContent = '0.0';
+  document.getElementById('sw-phase').textContent = '';
+  document.getElementById('sw-start-stop').textContent = 'start';
+  renderSwSaveButtons();
+}
+
+function swTick() {
+  if (!swRunning) return;
+  var elapsed = (performance.now() - swStartTime) / 1000;
+  document.getElementById('sw-display').textContent = elapsed.toFixed(1);
+  swRafId = requestAnimationFrame(swTick);
+}
+
+// ── SAVE BUTTONS ──
+function renderSwSaveButtons() {
+  var row = document.getElementById('sw-save-row');
+  row.innerHTML = '';
+
+  var elapsedSec = Math.round(swElapsed / 1000);
+  var canSave = swHasStopped && elapsedSec > 0;
+
+  if (swIsBilateral) {
+    var btnL = document.createElement('button');
+    btnL.className = 'sw-save-btn' + (swSavedL !== null ? ' sw-saved' : '');
+    btnL.textContent = swSavedL !== null ? 'L: ' + swSavedL + 's ✓' : 'save L';
+    btnL.disabled = swSavedL !== null || !canSave;
+    btnL.onclick = function() { swSaveSide('L', elapsedSec); };
+
+    var btnR = document.createElement('button');
+    btnR.className = 'sw-save-btn' + (swSavedR !== null ? ' sw-saved' : '');
+    btnR.textContent = swSavedR !== null ? 'R: ' + swSavedR + 's ✓' : 'save R';
+    btnR.disabled = swSavedR !== null || !canSave;
+    btnR.onclick = function() { swSaveSide('R', elapsedSec); };
+
+    row.appendChild(btnL);
+    row.appendChild(btnR);
+  } else {
+    var btn = document.createElement('button');
+    btn.className = 'sw-save-btn';
+    btn.textContent = 'save';
+    btn.disabled = !canSave;
+    btn.onclick = function() { swSaveSingle(elapsedSec); };
+    row.appendChild(btn);
+  }
+}
+
+function swSaveSide(side, secs) {
+  if (side === 'L') swSavedL = secs;
+  else              swSavedR = secs;
+
+  renderSwSaveButtons();
+
+  // If both sides saved, populate seconds fields and close
+  if (swSavedL !== null && swSavedR !== null) {
+    // Store as "L/R" format in the seconds input for commit
+    document.getElementById('input-seconds').value = swSavedL + '/' + swSavedR;
+    closeStopwatch();
+    maybeAutoAdvance();
+  } else {
+    // reset timer for other side
+    swReset();
+    document.getElementById('sw-phase').textContent = side === 'L' ? 'now do R' : 'now do L';
+  }
+}
+
+function swSaveSingle(secs) {
+  document.getElementById('input-seconds').value = secs;
+  closeStopwatch();
+  maybeAutoAdvance();
 }

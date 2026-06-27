@@ -84,14 +84,27 @@ function getLastSetForRound(exerciseId, round) {
 }
 
 // Get all weighted data points for an exercise: [{date, weight}]
+// Also handles timed exercises (returns max seconds as 'weight' for charting)
 function getWeightHistory(exerciseId) {
   const sessions = getSessions();
   return sessions
     .map(s => {
-      const sets = s.sets.filter(x => x.exerciseId === exerciseId && !x.skipped && x.weight);
+      const sets = s.sets.filter(x => x.exerciseId === exerciseId && !x.skipped);
       if (!sets.length) return null;
-      const maxWeight = Math.max(...sets.map(x => parseFloat(x.weight)));
-      return { date: s.date, weight: maxWeight };
+      const weighted = sets.filter(x => x.weight);
+      const timed    = sets.filter(x => x.seconds !== undefined || x.secondsL !== undefined);
+      if (weighted.length) {
+        return { date: s.date, weight: Math.max(...weighted.map(x => parseFloat(x.weight))) };
+      }
+      if (timed.length) {
+        const vals = timed.map(x => Math.max(
+          x.seconds   ? parseFloat(x.seconds)  : 0,
+          x.secondsL  ? parseFloat(x.secondsL) : 0,
+          x.secondsR  ? parseFloat(x.secondsR) : 0
+        ));
+        return { date: s.date, weight: Math.max(...vals) };
+      }
+      return null;
     })
     .filter(Boolean);
 }
