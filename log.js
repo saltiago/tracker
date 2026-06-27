@@ -536,6 +536,15 @@ window.addEventListener('DOMContentLoaded', function() {
 
 // ── OPEN / CLOSE STOPWATCH ──
 function openStopwatch() {
+  // Re-read program from storage so editor changes are reflected without reload
+  var freshProgram = getProgram();
+  var freshList = freshProgram.flatMap(function(p) { return p.exercises; });
+  // Sync bilateral flag back into live exerciseList
+  freshList.forEach(function(fe, i) {
+    if (exerciseList[i] && exerciseList[i].id === fe.id) {
+      exerciseList[i].bilateral = fe.bilateral;
+    }
+  });
   var ex = exerciseList[currentExIdx];
   swIsBilateral = !!(ex && ex.bilateral);
   swSavedL = null;
@@ -546,6 +555,9 @@ function openStopwatch() {
   clearCountdown();
 
   document.getElementById('sw-ex-label').textContent = ex ? ex.name : '';
+  // Restore last-used countdown for this exercise
+  var savedCd = ex ? localStorage.getItem('lf_cd_' + ex.id) : null;
+  document.getElementById('sw-countdown-select').value = savedCd || '0';
   document.getElementById('sw-display').textContent = '0.0';
   document.getElementById('sw-phase').textContent = '';
   document.getElementById('sw-start-stop').textContent = 'start';
@@ -582,6 +594,9 @@ function swToggle() {
 }
 
 function swStartCountdown(seconds) {
+  // Persist countdown choice for this exercise
+  var ex = exerciseList[currentExIdx];
+  if (ex) localStorage.setItem('lf_cd_' + ex.id, seconds);
   var btn = document.getElementById('sw-start-stop');
   btn.textContent = 'cancel';
   document.getElementById('sw-phase').textContent = 'get ready...';
