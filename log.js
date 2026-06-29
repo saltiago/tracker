@@ -484,6 +484,7 @@ var countdownTimer = null;
 var beepVolume   = parseFloat(localStorage.getItem('lf_beep_vol') || '0.6');
 var longPressTimer = null;
 var LONG_PRESS_MS  = 600;
+var longPressFired = false;  // suppresses the click that fires after a long press
 
 // ── AUDIO ──
 var audioCtx = null;
@@ -509,14 +510,14 @@ function beep(freq, duration, volume, delay) {
 }
 
 function playCountdownBeeps(seconds) {
-  // 3-2-1 beeps: short beeps for 3 and 2, long for 1 (go!)
+  // Short beeps at 3, 2, 1 then a long GO beep when timer actually starts
   var vol = beepVolume;
   var startDelay = seconds - 3;
   if (startDelay < 0) startDelay = 0;
-  // beep at each of last 3 seconds
-  if (seconds >= 3) { beep(880, 0.12, vol, startDelay); }         // 3
-  if (seconds >= 2) { beep(880, 0.12, vol, startDelay + 1); }     // 2
-  beep(1200, 0.5, vol, startDelay + 2);                            // 1 (GO — longer, higher)
+  if (seconds >= 3) beep(880, 0.1, vol, startDelay);       // 3 — short
+  if (seconds >= 2) beep(880, 0.1, vol, startDelay + 1);   // 2 — short
+  beep(880, 0.1, vol, startDelay + 2);                      // 1 — short
+  beep(1200, 0.6, vol, seconds);                            // GO — long, when stopwatch starts
 }
 
 function setBeepVolume(val) {
@@ -577,6 +578,7 @@ function closeStopwatch() {
 
 // ── TOGGLE START/STOP ──
 function swToggle() {
+  if (longPressFired) { longPressFired = false; return; }  // swallowed by long press
   // If there's a countdown active, cancel it and go straight to run
   if (countdownTimer !== null) {
     clearCountdown();
@@ -645,8 +647,10 @@ function swStop() {
 }
 
 function swLongPressStart() {
+  longPressFired = false;
   longPressTimer = setTimeout(function() {
     longPressTimer = null;
+    longPressFired = true;
     swReset();
   }, LONG_PRESS_MS);
 }
