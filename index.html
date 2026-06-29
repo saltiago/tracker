@@ -10,21 +10,18 @@
 
 <div id="app">
 
-  <!-- MENU OVERLAY -->
-  <div id="menu-overlay" class="hidden">
-    <div id="menu-panel">
-      <button class="menu-close" onclick="closeMenu()">✕</button>
-      <nav>
-        <a href="index.html" class="menu-item active">log</a>
-        <a href="stats.html" class="menu-item">stats</a>
-        <a href="editor.html" class="menu-item">program</a>
-        <a href="stretches.html" class="menu-item">mobility</a>
-      </nav>
-      <div class="menu-volume">
-        <div class="menu-volume-label">beep volume</div>
-        <input type="range" id="beep-volume" min="0" max="1" step="0.05" value="0.6"
-               oninput="setBeepVolume(this.value)">
-      </div>
+  <!-- MENU SHEET -->
+  <div class="menu-scrim" id="menu-scrim" onclick="closeMenu()"></div>
+  <div id="menu-sheet">
+    <div class="menu-sheet-title">lifter</div>
+    <a href="index.html" class="menu-item active">log</a>
+    <a href="stats.html" class="menu-item">stats</a>
+    <a href="editor.html" class="menu-item">program</a>
+    <a href="stretches.html" class="menu-item">mobility</a>
+    <div class="menu-volume">
+      <div class="menu-volume-label">beep volume</div>
+      <input type="range" id="beep-volume" class="vol-slider" min="0" max="1" step="0.05" value="0.6"
+             oninput="setBeepVolume(this.value)">
     </div>
   </div>
 
@@ -79,11 +76,15 @@
       <div id="sw-display" class="sw-display">0.0</div>
       <div id="sw-phase" class="sw-phase"></div>
 
-      <!-- Controls -->
+      <!-- Controls: tap to start/stop, long press to reset -->
       <div class="sw-controls">
-        <button id="sw-start-stop" class="sw-btn-primary" onclick="swToggle()">start</button>
-        <button class="sw-btn-secondary" onclick="swReset()">reset</button>
+        <button id="sw-start-stop" class="sw-btn-primary sw-btn-big"
+                onclick="swToggle()"
+                onpointerdown="swLongPressStart()"
+                onpointerup="swLongPressCancel()"
+                onpointerleave="swLongPressCancel()">start</button>
       </div>
+      <div id="sw-long-press-hint" class="sw-long-press-hint">hold to reset</div>
 
       <!-- Save buttons -->
       <div class="sw-save-row" id="sw-save-row">
@@ -100,11 +101,6 @@
       <button class="popup-btn-primary" onclick="skipWarmup()">skip warmup</button>
     </div>
   </div>
-
-  <!-- HAMBURGER -->
-  <button id="hamburger" onclick="openMenu()">
-    <span></span><span></span><span></span>
-  </button>
 
   <!-- END WORKOUT BUTTON -->
   <button id="end-btn" class="hidden" onclick="endWorkout()">end</button>
@@ -185,7 +181,7 @@
           <input id="input-seconds" type="number" inputmode="numeric" pattern="[0-9]*"
                  autocomplete="off" placeholder="—">
         </div>
-        <button class="stopwatch-open-btn" onclick="openStopwatch()">⏱</button>
+        <button class="stopwatch-open-btn" onclick="openStopwatch()">timer</button>
       </div>
     </div>
 

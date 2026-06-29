@@ -115,26 +115,27 @@ function getAllExercises() {
   return program.flatMap(pair => pair.exercises);
 }
 
-// Menu open/close (shared)
+// Menu open/close (shared — slide-in sheet)
 function openMenu() {
-  document.getElementById('menu-overlay').classList.remove('hidden');
+  var sheet = document.getElementById('menu-sheet');
+  var scrim = document.getElementById('menu-scrim');
+  if (sheet) sheet.classList.add('open');
+  if (scrim) scrim.classList.add('open');
 }
 function closeMenu() {
-  document.getElementById('menu-overlay').classList.add('hidden');
+  var sheet = document.getElementById('menu-sheet');
+  var scrim = document.getElementById('menu-scrim');
+  if (sheet) sheet.classList.remove('open');
+  if (scrim) scrim.classList.remove('open');
 }
-document.addEventListener('click', e => {
-  const overlay = document.getElementById('menu-overlay');
-  if (overlay && !overlay.classList.contains('hidden') && e.target === overlay) {
-    closeMenu();
-  }
-});
 
 // ── THEME (shared across all pages) ──
+// Default: light. 'dark' class adds dark palette.
 (function initTheme() {
-  if (localStorage.getItem('lf_theme') === 'light') document.body.classList.add('light');
+  if (localStorage.getItem('lf_theme') === 'dark') document.body.classList.add('dark');
 })();
 
 function toggleTheme() {
-  var isLight = document.body.classList.toggle('light');
-  localStorage.setItem('lf_theme', isLight ? 'light' : 'dark');
+  var isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('lf_theme', isDark ? 'dark' : 'light');
 }

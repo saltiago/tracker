@@ -9,21 +9,30 @@
 <body>
 
 <div id="app">
-  <div id="menu-overlay" class="hidden">
-    <div id="menu-panel">
-      <button class="menu-close" onclick="closeMenu()">✕</button>
-      <nav>
-        <a href="index.html" class="menu-item">log</a>
-        <a href="stats.html" class="menu-item">stats</a>
-        <a href="editor.html" class="menu-item">program</a>
-        <a href="stretches.html" class="menu-item active">mobility</a>
-      </nav>
-    </div>
+  <!-- MENU SHEET -->
+  <div class="menu-scrim" id="menu-scrim" onclick="closeMenu()"></div>
+  <div id="menu-sheet">
+    <div class="menu-sheet-title">lifter</div>
+    <a href="index.html" class="menu-item">log</a>
+    <a href="stats.html" class="menu-item">stats</a>
+    <a href="editor.html" class="menu-item">program</a>
+    <a href="stretches.html" class="menu-item active">mobility</a>
   </div>
-  <button id="theme-toggle" onclick="toggleTheme()" aria-label="toggle theme">
-    <div class="toggle-track"><div class="toggle-thumb"></div></div>
-  </button>
-  <button id="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+    </div>
+    <div class="wordmark">lifter</div>
+    <div class="header-right">
+      <button id="hamburger" onclick="openMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
   <div class="page-wrap">
     <div class="page-title">mobility</div>

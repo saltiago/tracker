@@ -10,21 +10,30 @@
 <body>
 
 <div id="app">
-  <div id="menu-overlay" class="hidden">
-    <div id="menu-panel">
-      <button class="menu-close" onclick="closeMenu()">✕</button>
-      <nav>
-        <a href="index.html" class="menu-item">log</a>
-        <a href="stats.html" class="menu-item active">stats</a>
-        <a href="editor.html" class="menu-item">program</a>
-        <a href="stretches.html" class="menu-item">mobility</a>
-      </nav>
-    </div>
+  <!-- MENU SHEET -->
+  <div class="menu-scrim" id="menu-scrim" onclick="closeMenu()"></div>
+  <div id="menu-sheet">
+    <div class="menu-sheet-title">lifter</div>
+    <a href="index.html" class="menu-item">log</a>
+    <a href="stats.html" class="menu-item active">stats</a>
+    <a href="editor.html" class="menu-item">program</a>
+    <a href="stretches.html" class="menu-item">mobility</a>
   </div>
-  <button id="theme-toggle" onclick="toggleTheme()" aria-label="toggle theme">
-    <div class="toggle-track"><div class="toggle-thumb"></div></div>
-  </button>
-  <button id="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+    </div>
+    <div class="wordmark">lifter</div>
+    <div class="header-right">
+      <button id="hamburger" onclick="openMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
   <div class="page-wrap">
     <div class="page-title">stats</div>
@@ -98,9 +107,9 @@ function renderStats(exerciseId) {
       labels,
       datasets: [{
         data: weights,
-        borderColor: '#c8a96e',
+        borderColor: '#2a2521',
         borderWidth: 1.5,
-        pointBackgroundColor: '#c8a96e',
+        pointBackgroundColor: '#2a2521',
         pointRadius: 3,
         pointHoverRadius: 5,
         tension: 0.3,
@@ -111,13 +120,13 @@ function renderStats(exerciseId) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: {
-        backgroundColor: '#1e1e1e',
-        borderColor: '#2a2a2a',
+        backgroundColor: '#ffffff',
+        borderColor: '#d4cdc2',
         borderWidth: 1,
-        titleColor: '#c8a96e',
-        bodyColor: '#777',
-        titleFont: { family: 'IBM Plex Mono', size: 11 },
-        bodyFont:  { family: 'IBM Plex Mono', size: 11 },
+        titleColor: '#1c1a18',
+        bodyColor: '#5a5248',
+        titleFont: { family: 'DM Mono', size: 11 },
+        bodyFont:  { family: 'DM Mono', size: 11 },
         callbacks: {
           label: ctx => `${ctx.parsed.y} lbs`
         }

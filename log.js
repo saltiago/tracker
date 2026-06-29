@@ -482,6 +482,8 @@ var swSavedR     = null;    // seconds saved for R side
 var swHasStopped = false;   // true once stopped after at least one run
 var countdownTimer = null;
 var beepVolume   = parseFloat(localStorage.getItem('lf_beep_vol') || '0.6');
+var longPressTimer = null;
+var LONG_PRESS_MS  = 600;
 
 // ── AUDIO ──
 var audioCtx = null;
@@ -642,6 +644,16 @@ function swStop() {
   renderSwSaveButtons();
 }
 
+function swLongPressStart() {
+  longPressTimer = setTimeout(function() {
+    longPressTimer = null;
+    swReset();
+  }, LONG_PRESS_MS);
+}
+function swLongPressCancel() {
+  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+}
+
 function swReset() {
   swStop();
   clearCountdown();
@@ -700,14 +712,11 @@ function swSaveSide(side, secs) {
 
   renderSwSaveButtons();
 
-  // If both sides saved, populate seconds fields and close
   if (swSavedL !== null && swSavedR !== null) {
-    // Store as "L/R" format in the seconds input for commit
     document.getElementById('input-seconds').value = swSavedL + '/' + swSavedR;
     closeStopwatch();
-    maybeAutoAdvance();
+    commitAndAdvance();  // call directly — .value= doesn't fire input event
   } else {
-    // reset timer for other side
     swReset();
     document.getElementById('sw-phase').textContent = side === 'L' ? 'now do R' : 'now do L';
   }
@@ -716,5 +725,5 @@ function swSaveSide(side, secs) {
 function swSaveSingle(secs) {
   document.getElementById('input-seconds').value = secs;
   closeStopwatch();
-  maybeAutoAdvance();
+  commitAndAdvance();  // call directly — .value= doesn't fire input event
 }
