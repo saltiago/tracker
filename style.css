@@ -83,6 +83,17 @@ body.log-page {
   color: var(--text);
   line-height: 1;
   justify-self: center;
+  grid-column: 2;
+}
+.header-timer {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  color: var(--amber);
+  line-height: 1;
+  justify-self: center;
+  grid-column: 2;
 }
 
 /* ── THEME TOGGLE ── */
@@ -998,4 +1009,63 @@ canvas#chart { width: 100% !important; height: 100% !important; }
   color: var(--muted);
   letter-spacing: .04em;
   line-height: 1.6;
+}
+
+/* ── SESSION SUMMARY (screenshot-friendly) ── */
+.screen-done-wrap {
+  justify-content: flex-start;
+  padding-top: 24px;
+}
+.summary-inner {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.summary-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.summary-meta {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-bottom: 20px;
+}
+.summary-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  min-height: 0;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface2);
+}
+.summary-ex-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.summary-ex-sets {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+  letter-spacing: .02em;
+}
+.summary-finish-btn {
+  flex-shrink: 0;
 }

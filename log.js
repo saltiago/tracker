@@ -93,7 +93,41 @@ function startSession(withWarmup) {
   currentExIdx = 0;
   currentMod   = 'bw';
   history = {};  // cleared; ghost now queried live per exercise + round
+  startWorkoutTimer();
   renderCurrent();
+}
+
+// ── WORKOUT TIMER (runs from start to end, no pause/reset) ──
+var workoutTimerInterval = null;
+var workoutStartTime = null;
+
+function startWorkoutTimer() {
+  workoutStartTime = Date.now();
+  document.getElementById('header-wordmark').classList.add('hidden');
+  document.getElementById('header-timer').classList.remove('hidden');
+  document.getElementById('header-timer').textContent = '0:00';
+  if (workoutTimerInterval) clearInterval(workoutTimerInterval);
+  workoutTimerInterval = setInterval(updateWorkoutTimer, 1000);
+}
+
+function updateWorkoutTimer() {
+  var elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
+  var h = Math.floor(elapsed / 3600);
+  var m = Math.floor((elapsed % 3600) / 60);
+  var s = elapsed % 60;
+  var text;
+  if (h > 0) {
+    text = h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  } else {
+    text = m + ':' + String(s).padStart(2, '0');
+  }
+  document.getElementById('header-timer').textContent = text;
+}
+
+function stopWorkoutTimer() {
+  if (workoutTimerInterval) { clearInterval(workoutTimerInterval); workoutTimerInterval = null; }
+  document.getElementById('header-timer').classList.add('hidden');
+  document.getElementById('header-wordmark').classList.remove('hidden');
 }
 
 // ── RENDER CURRENT EXERCISE ──
@@ -127,8 +161,16 @@ function renderExercise(ex, prefill) {
     var ghost = fr !== currentRound
       ? (fr === 0 ? 'last warmup: ' : 'last r' + fr + ': ')
       : (fr === 0 ? 'last warmup: ' : 'last: ');
-    if (ls.seconds !== undefined)                     ghost += ls.seconds + 's';
+    if (ls.secondsL !== undefined || ls.secondsR !== undefined) {
+      ghost += (ls.secondsL !== undefined ? ls.secondsL : '?') + 's (L) / ' +
+               (ls.secondsR !== undefined ? ls.secondsR : '?') + 's (R)';
+    }
+    else if (ls.seconds !== undefined)                ghost += ls.seconds + 's';
     else if (ls.weight)                               ghost += ls.weight + ' lbs × ' + ls.reps;
+    else if (ls.band1 || ls.band2) {
+      var gbands = [ls.band1, ls.band2].filter(Boolean).join(' + ');
+      ghost += ls.reps + ' reps (' + gbands + ')';
+    }
     else                                              ghost += ls.reps + ' reps';
     if (ls.modifier && ls.modifier !== 'weighted')    ghost += ' (' + ls.modifier + ')';
     document.getElementById('ex-last').textContent = ghost;
@@ -238,14 +280,14 @@ function manualAdvance() {
 }
 
 // ── COMMIT CURRENT EXERCISE + ADVANCE ──
-function commitAndAdvance() {
+function commitAndAdvance(secondsOverride) {
   clearAdvance();
   var ex = exerciseList[currentExIdx];
 
   var entered = {
     reps:     repsVal(),
     weight:   weightVal(),
-    seconds:  secondsVal(),
+    seconds:  secondsOverride !== undefined ? secondsOverride : secondsVal(),
     modifier: currentMod,
     band1:    band1Val(),
     band2:    band2Val()
@@ -437,29 +479,84 @@ function endCancel()   { document.getElementById('end-popup').classList.add('hid
 
 // ── FINISH ──
 function finishSession(save) {
+  stopWorkoutTimer();
   if (save && sessionSets.length) saveSession(sessionSets);
 
-  var weighted = sessionSets.filter(function(s) { return !s.skipped && s.weight; });
-  var bwSets   = sessionSets.filter(function(s) { return !s.skipped && s.reps && !s.weight; });
-  var timed    = sessionSets.filter(function(s) { return !s.skipped && s.seconds; });
-  var checks   = sessionSets.filter(function(s) { return !s.skipped && s.check; });
-  var skips    = sessionSets.filter(function(s) { return s.skipped; });
+  if (!save) {
+    document.getElementById('summary-title').textContent = 'session discarded';
+    document.getElementById('summary-meta').textContent = '';
+    document.getElementById('summary-list').innerHTML = '';
+    show('screen-done');
+    return;
+  }
 
-  var total   = weighted.length + bwSets.length + timed.length;
+  // total elapsed time + clock start/end
+  var endTime = Date.now();
+  var elapsedSec = workoutStartTime ? Math.floor((endTime - workoutStartTime) / 1000) : 0;
+  var h = Math.floor(elapsedSec / 3600);
+  var m = Math.floor((elapsedSec % 3600) / 60);
+  var s = elapsedSec % 60;
+  var durStr = h > 0
+    ? h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0')
+    : m + ':' + String(s).padStart(2,'0');
+
+  function clockStr(ms) {
+    var d = new Date(ms);
+    var hrs = d.getHours();
+    var mins = d.getMinutes();
+    var ampm = hrs >= 12 ? 'pm' : 'am';
+    hrs = hrs % 12; if (hrs === 0) hrs = 12;
+    return hrs + ':' + String(mins).padStart(2,'0') + ampm;
+  }
+  var timeRange = workoutStartTime
+    ? clockStr(workoutStartTime) + '\u2013' + clockStr(endTime) + ' (' + durStr + ')'
+    : durStr;
+
   var workRounds = currentRound === 0 ? 0 : currentRound;
   var hasWarmup  = sessionSets.some(function(s) { return s.round === 0 && !s.skipped; });
-  var summary    = (hasWarmup ? 'warmup + ' : '') +
-                   workRounds + ' round' + (workRounds !== 1 ? 's' : '');
-  summary += '  \u00b7  ' + total + ' sets logged';
-  if (checks.length) summary += '  \u00b7  ' + checks.length + ' checks';
-  if (skips.length)  summary += '  \u00b7  ' + skips.length + ' skipped';
-  if (!save)         summary  = 'session discarded';
+  var roundsStr  = (hasWarmup ? 'warmup + ' : '') + workRounds + ' round' + (workRounds !== 1 ? 's' : '');
 
-  document.getElementById('done-summary').textContent = summary;
+  document.getElementById('summary-title').textContent = 'workout complete';
+  document.getElementById('summary-meta').textContent = roundsStr + '  \u00b7  ' + timeRange;
+
+  // group sets by exercise, in program order, skip fully-skipped exercises
+  var list = document.getElementById('summary-list');
+  list.innerHTML = '';
+
+  exerciseList.forEach(function(ex) {
+    var sets = sessionSets.filter(function(s) { return s.exerciseId === ex.id && !s.skipped; });
+    if (!sets.length) return;
+
+    var parts = sets.map(function(s) {
+      if (s.secondsL !== undefined || s.secondsR !== undefined) {
+        return (s.secondsL !== undefined ? s.secondsL : '?') + '/' + (s.secondsR !== undefined ? s.secondsR : '?') + 's (L/R)';
+      }
+      if (s.seconds !== undefined) return s.seconds + 's';
+      if (s.check) return '\u2713';
+      if (s.weight) return s.weight + ' lbs \u00d7' + s.reps;
+      if (s.band1 || s.band2) {
+        var bands = [s.band1, s.band2].filter(Boolean).join('+');
+        return s.reps + (bands ? ' (' + bands + ')' : '');
+      }
+      if (s.reps) {
+        if (s.modifier === 'assisted') return 'assisted \u00d7' + s.reps;
+        return 'BW\u00d7' + s.reps;
+      }
+      return '';
+    }).filter(Boolean);
+
+    var row = document.createElement('div');
+    row.className = 'summary-row';
+    row.innerHTML = '<span class="summary-ex-name">' + ex.name + '</span>' +
+                     '<span class="summary-ex-sets">' + parts.join(', ') + '</span>';
+    list.appendChild(row);
+  });
+
   show('screen-done');
 }
 
 function resetToStart() {
+  stopWorkoutTimer();
   sessionSets  = [];
   stateHistory = [];
   currentRound = 0;
@@ -717,9 +814,10 @@ function swSaveSide(side, secs) {
   renderSwSaveButtons();
 
   if (swSavedL !== null && swSavedR !== null) {
-    document.getElementById('input-seconds').value = swSavedL + '/' + swSavedR;
+    var val = swSavedL + '/' + swSavedR;
+    document.getElementById('input-seconds').value = val;
     closeStopwatch();
-    commitAndAdvance();  // call directly — .value= doesn't fire input event
+    commitAndAdvance(val);  // pass directly — nothing can clear it in between
   } else {
     swReset();
     document.getElementById('sw-phase').textContent = side === 'L' ? 'now do R' : 'now do L';
@@ -727,7 +825,8 @@ function swSaveSide(side, secs) {
 }
 
 function swSaveSingle(secs) {
-  document.getElementById('input-seconds').value = secs;
+  var val = String(secs);
+  document.getElementById('input-seconds').value = val;
   closeStopwatch();
-  commitAndAdvance();  // call directly — .value= doesn't fire input event
+  commitAndAdvance(val);  // pass directly — nothing can clear it in between
 }

@@ -109,7 +109,8 @@
         <div class="toggle-track"><div class="toggle-thumb"></div></div>
       </button>
     </div>
-    <div class="wordmark">lifter</div>
+    <div class="wordmark" id="header-wordmark">lifter</div>
+    <div class="header-timer hidden" id="header-timer">0:00</div>
     <div class="header-right">
       <button id="hamburger" onclick="openMenu()">
         <span></span><span></span><span></span>
@@ -235,10 +236,12 @@
   </div>
 
   <!-- SESSION DONE SCREEN -->
-  <div id="screen-done" class="screen hidden">
-    <div class="start-inner">
-      <div id="done-summary" class="done-summary"></div>
-      <button class="big-btn" onclick="resetToStart()">finish</button>
+  <div id="screen-done" class="screen hidden screen-done-wrap">
+    <div class="summary-inner">
+      <div class="summary-title" id="summary-title">workout complete</div>
+      <div class="summary-meta" id="summary-meta"></div>
+      <div class="summary-list" id="summary-list"></div>
+      <button class="big-btn summary-finish-btn" onclick="resetToStart()">finish</button>
     </div>
   </div>
 
