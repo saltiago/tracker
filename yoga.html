@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>yoga</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- MENU SHEET -->
+  <div class="menu-scrim" id="menu-scrim" onclick="closeMenu()"></div>
+  <div id="menu-sheet">
+    <div class="menu-sheet-title">lifter</div>
+    <a href="index.html" class="menu-item">log</a>
+    <a href="stats.html" class="menu-item">stats</a>
+    <a href="editor.html" class="menu-item">program</a>
+    <a href="stretches.html" class="menu-item">mobility</a>
+    <a href="yoga.html" class="menu-item active">yoga</a>
+  </div>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+    </div>
+    <div class="wordmark">lifter</div>
+    <div class="header-right">
+      <button id="hamburger" onclick="openMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <div class="page-title">yoga</div>
+
+    <!-- ── OPENING ── -->
+    <div class="stretch-section">
+      <div class="stretch-section-title">opening</div>
+
+      <div class="stretch-item">
+        <div class="stretch-name">Samasthiti</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Surya Namaskara A</div>
+        <div class="stretch-detail">× 3</div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Surya Namaskara B</div>
+        <div class="stretch-detail">× 2</div>
+      </div>
+    </div>
+
+    <!-- ── STANDING SEQUENCE ── -->
+    <div class="stretch-section">
+      <div class="stretch-section-title">standing sequence</div>
+
+      <div class="stretch-item">
+        <div class="stretch-name">Trikonasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Parivrtta Trikonasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Prasarita Padottanasana A</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Prasarita Padottanasana C</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Utthita Hasta Padangusthasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Virabhadrasana 1</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Virabhadrasana 2</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Vrikshasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+    </div>
+
+    <!-- ── SEATED SEQUENCE ── -->
+    <div class="stretch-section">
+      <div class="stretch-section-title">seated sequence</div>
+
+      <div class="stretch-item">
+        <div class="stretch-name">Janu Sirsasana A</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Marichyasana A</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Marichyasana C</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Baddha Konasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Upavistha Konasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Paschimottanasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Setu Bandhasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Supta Padangusthasana A</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Supta Padangusthasana B</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Jathara Parivartanasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Ananda Balasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+    </div>
+
+    <!-- ── FINISHING SEQUENCE ── -->
+    <div class="stretch-section">
+      <div class="stretch-section-title">finishing sequence</div>
+
+      <div class="stretch-item">
+        <div class="stretch-name">Ustrasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Urdhva Dhanurasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Viparita Karani</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Matsyasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+      <div class="stretch-item">
+        <div class="stretch-name">Savasana</div>
+        <div class="stretch-detail"></div>
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+</body>
+</html>
